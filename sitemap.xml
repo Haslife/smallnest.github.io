@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://colobu.com/2018/06/26/implement-quick-sort-in-golang/</loc>
+    <lastmod>2018-06-26T10:55:18.749Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://colobu.com/2018/06/13/cgo-articles/</loc>
     <lastmod>2018-06-25T05:55:46.157Z</lastmod>
   </url>
@@ -508,11 +513,6 @@
   
   <url>
     <loc>http://colobu.com/2015/09/28/go-cross-compiling/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://colobu.com/2016/03/10/Summary-of-Architectures/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -1888,6 +1888,11 @@
   
   <url>
     <loc>http://colobu.com/2015/06/23/Dismantling-invokedynamic/</loc>
+    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://colobu.com/2016/03/10/Summary-of-Architectures/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
