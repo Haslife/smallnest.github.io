@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://colobu.com/2018/06/28/Error-response-from-daemon-error-creating-overlay-mount-to-var-lib-docker-overlay2/</loc>
+    <lastmod>2018-06-28T08:59:50.657Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://colobu.com/2018/06/26/implement-quick-sort-in-golang/</loc>
     <lastmod>2018-06-26T11:22:30.657Z</lastmod>
   </url>
@@ -512,12 +517,7 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2015/09/28/go-cross-compiling/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://colobu.com/2015/10/27/Sync-Transformed-Data-from-MongoDB-to-Elasticsearch/</loc>
+    <loc>http://colobu.com/2016/10/12/go-file-operations/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -952,12 +952,12 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2014/08/22/Benchmark-of-some-popular-frameworks/</loc>
+    <loc>http://colobu.com/2015/09/28/go-cross-compiling/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://colobu.com/2016/10/12/go-file-operations/</loc>
+    <loc>http://colobu.com/2014/08/22/Benchmark-of-some-popular-frameworks/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -1893,6 +1893,11 @@
   
   <url>
     <loc>http://colobu.com/2016/03/10/Summary-of-Architectures/</loc>
+    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://colobu.com/2015/10/27/Sync-Transformed-Data-from-MongoDB-to-Elasticsearch/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
