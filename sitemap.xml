@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://colobu.com/2018/06/13/cgo-articles/</loc>
+    <lastmod>2018-07-19T09:46:19.623Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://colobu.com/2018/07/12/some-tools-in-GNU-Binutils/</loc>
     <lastmod>2018-07-12T08:49:03.594Z</lastmod>
   </url>
@@ -14,11 +19,6 @@
   <url>
     <loc>http://colobu.com/2018/06/26/implement-quick-sort-in-golang/</loc>
     <lastmod>2018-06-26T11:22:30.657Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://colobu.com/2018/06/13/cgo-articles/</loc>
-    <lastmod>2018-06-25T05:55:46.157Z</lastmod>
   </url>
   
   <url>
