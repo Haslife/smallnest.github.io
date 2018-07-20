@@ -2,6 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://colobu.com/2018/07/20/totally-static-Go-builds/</loc>
+    <lastmod>2018-07-20T00:52:47.271Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://colobu.com/2015/10/12/create-minimal-golang-docker-images/</loc>
+    <lastmod>2018-07-20T00:41:14.774Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://colobu.com/2018/06/13/cgo-articles/</loc>
     <lastmod>2018-07-19T09:46:19.623Z</lastmod>
   </url>
@@ -522,16 +532,6 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2016/10/12/go-file-operations/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://colobu.com/2015/06/25/TCP-connection-status/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
-  </url>
-  
-  <url>
     <loc>http://colobu.com/2015/11/09/The-Stack-of-uriDB/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
@@ -777,7 +777,7 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2015/10/12/create-minimal-golang-docker-images/</loc>
+    <loc>http://colobu.com/2016/04/14/Golang-Generics-Proposal/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -807,11 +807,6 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2016/04/14/Golang-Generics-Proposal/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
-  </url>
-  
-  <url>
     <loc>http://colobu.com/2015/09/28/Golang-Serializer-Benchmark-Comparison/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
@@ -837,12 +832,17 @@
   </url>
   
   <url>
+    <loc>http://colobu.com/2015/01/21/How-to-do-a-good-cooperation-with-the-engineering-team-as-product-manager/</loc>
+    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://colobu.com/2016/06/15/dive-into-go-1/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://colobu.com/2015/01/21/How-to-do-a-good-cooperation-with-the-engineering-team-as-product-manager/</loc>
+    <loc>http://colobu.com/2015/09/07/How-to-Write-Go-Code/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -877,7 +877,7 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2015/09/07/How-to-Write-Go-Code/</loc>
+    <loc>http://colobu.com/2015/10/30/How-to-get-bash-or-ssh-into-a-running-container-in-background-mode/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -887,7 +887,7 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2015/10/30/How-to-get-bash-or-ssh-into-a-running-container-in-background-mode/</loc>
+    <loc>http://colobu.com/2015/01/04/How-to-Leak-a-Context-Handlers-Inner-Classes/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -922,11 +922,6 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2015/01/04/How-to-Leak-a-Context-Handlers-Inner-Classes/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
-  </url>
-  
-  <url>
     <loc>http://colobu.com/2014/12/23/How-to-make-your-code-self-documenting/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
@@ -937,12 +932,17 @@
   </url>
   
   <url>
+    <loc>http://colobu.com/2016/02/25/Ignite-vs-Hazelcast/</loc>
+    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://colobu.com/2014/10/09/gitbook-quickstart/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
   <url>
-    <loc>http://colobu.com/2016/02/25/Ignite-vs-Hazelcast/</loc>
+    <loc>http://colobu.com/2014/08/22/Benchmark-of-some-popular-frameworks/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -957,7 +957,7 @@
   </url>
   
   <url>
-    <loc>http://colobu.com/2014/08/22/Benchmark-of-some-popular-frameworks/</loc>
+    <loc>http://colobu.com/2016/10/12/go-file-operations/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -1903,6 +1903,11 @@
   
   <url>
     <loc>http://colobu.com/2014/12/11/StrongReference-SoftReference-WeakReference-and-PhantomReference-in-Java/</loc>
+    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://colobu.com/2015/06/25/TCP-connection-status/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
