@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://colobu.com/"/>
-  <updated>2018-07-25T03:38:09.846Z</updated>
+  <updated>2018-07-26T03:19:25.250Z</updated>
   <id>http://colobu.com/</id>
   
   <author>
@@ -13,6 +13,102 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[[翻译]Go HttpServer 最佳实践]]></title>
+    <link href="http://colobu.com/2018/07/25/exposing-go-on-the-internet/"/>
+    <id>http://colobu.com/2018/07/25/exposing-go-on-the-internet/</id>
+    <published>2018-07-25T11:09:15.000Z</published>
+    <updated>2018-07-26T03:18:59.573Z</updated>
+    <content type="html"><![CDATA[<p>这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
+<p>先前 <code>crypto/tls</code> 太慢而<code>net/http</code>也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。</p>
+<p>在Cloudflare我们最近试验了直接暴漏纯Go的服务作为主机。 Go 1.8的<code>net/http</code> 和 <code>crypto/tls</code> 提供了稳定的、高性能并且灵活的功能。</p>
+<p>然后，需要做一些调优的工作，本文我们将展示怎么去调优和使web服务器更稳定。</p>
+<a id="more"></a>
+<p><img src="banner.jpg" alt=""></p>
+<h2 id="crypto/tls">crypto/tls</h2>
+<p>2016年了，你不会再运行一个不加密的HTTP Server，所以你需要<code>crypto/tls</code>。好消息使这个库已经非常<a href="https://blog.cloudflare.com/go-crypto-bridging-the-performance-gap/" target="_blank" rel="external">快</a>了(我们的<a href="https://blog.gopheracademy.com/advent-2016/tls-termination-bench/" target="_blank" rel="external">测试</a>)，目前他的安全攻击追踪也很优秀。</p>
+<p>缺省配置是使用Mozilla<a href="https://wiki.mozilla.org/Security/Server_Side_TLS" target="_blank" rel="external">参考</a>中的中级推荐配置,但是　你仍然应该设置<code>PreferServerCipherSuites</code>以确保采用更快更安全的密码库, <code>CurvePreferences</code>避免未优化的曲线。 客户端如果使用<code>CurveP384</code>算法回导致我们的机器多达1秒的cpu消耗。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&tls.Config{</div><div class="line">	<span class="comment">// Causes servers to use Go's default ciphersuite preferences,</span></div><div class="line">	<span class="comment">// which are tuned to avoid attacks. Does nothing on clients.</span></div><div class="line">	PreferServerCipherSuites: <span class="constant">true</span>,</div><div class="line">	<span class="comment">// Only use curves which have assembly implementations</span></div><div class="line">	CurvePreferences: []tls.CurveID{</div><div class="line">		tls.CurveP256,</div><div class="line">		tls.X25519, <span class="comment">// Go 1.8 only</span></div><div class="line">	},</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>如果你想配置兼容性， 你可以设置<code>MinVersion</code>和<code>CipherSuites</code>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">MinVersion: tls.VersionTLS12,</div><div class="line">CipherSuites: []<span class="typename">uint16</span>{</div><div class="line">	tls.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,</div><div class="line">	tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,</div><div class="line">	tls.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, <span class="comment">// Go 1.8 only</span></div><div class="line">	tls.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305,   <span class="comment">// Go 1.8 only</span></div><div class="line">	tls.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,</div><div class="line">	tls.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,</div><div class="line"></div><div class="line">	<span class="comment">// Best disabled, as they don't provide Forward Secrecy,</span></div><div class="line">	<span class="comment">// but might be necessary for some clients</span></div><div class="line">	<span class="comment">// tls.TLS_RSA_WITH_AES_256_GCM_SHA384,</span></div><div class="line">	<span class="comment">// tls.TLS_RSA_WITH_AES_128_GCM_SHA256,</span></div><div class="line">   },</div></pre></td></tr></table></figure>
+
+<p>注意Go的CBC加密套件的实现（上面我们禁用了）很容易收到 <a href="https://www.imperialviolet.org/2013/02/04/luckythirteen.html" target="_blank" rel="external">Lucky13攻击</a>， 即使Go 1.8实现了部分的<a href="https://github.com/golang/go/commit/f28cf8346c4ce7cb74bf97c7c69da21c43a78034" target="_blank" rel="external">处理</a>。</p>
+<p>最后需要注意的是， 所有这些建议仅适用 amd64架构因为它可以实现快速的常数级的<a href="https://blog.cloudflare.com/go-crypto-bridging-the-performance-gap/" target="_blank" rel="external">加密原语</a>(AES-GCM, ChaCha20-Poly1305, P256), 其它架构可能不适合产品级应用。</p>
+<p>既然是服务要暴漏带互联网上， 它需要一个公开的可信的证书。通过<code>Let’s Encrypt</code>很容易申请， 可以使用<code>golang.org/x/crypto/acme/autocert</code>的<code>GetCertificate</code>函数。</p>
+<p>不要忘了将HTTP重定向到HTTPS, 如果你的客户端是浏览器的话，可以考虑 <a href="https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet" target="_blank" rel="external">HSTS</a>。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">srv := &http.Server{</div><div class="line">	ReadTimeout: <span class="number"> 5</span> * time.Second,</div><div class="line">	WriteTimeout:<span class="number"> 5</span> * time.Second,</div><div class="line">	Handler: http.HandlerFunc(<span class="keyword">func</span>(w http.ResponseWriter, req *http.Request) {</div><div class="line">		w.Header().Set(<span class="string">"Connection"</span>, <span class="string">"close"</span>)</div><div class="line">		url := <span class="string">"https://"</span> + req.Host + req.URL.String()</div><div class="line">		http.Redirect(w, req, url, http.StatusMovedPermanently)</div><div class="line">	}),</div><div class="line">}</div><div class="line"><span class="keyword">go</span> <span class="keyword">func</span>() { log.Fatal(srv.ListenAndServe()) }()</div></pre></td></tr></table></figure>
+
+<p>你可以使用<a href="https://www.ssllabs.com/ssltest/" target="_blank" rel="external">SSL Labs test</a>检查配置是否正确。</p>
+<h2 id="net/http">net/http</h2>
+<p><code>net/http</code> 包含 <code>HTTP/1.1</code> 和 <code>HTTP/2</code>。你一定已经熟悉了Handler的开发，所以本文不讨论它。我们讨论服务器端背后的一些场景。</p>
+<h3 id="Timeout">Timeout</h3>
+<p>超时可能是最容易忽略的危险的场景。你的服务可能在受控网络中幸免于难，但是在互联网上就不会那么幸运了， 特别是(不仅仅)受到恶意攻击。</p>
+<p>有一系列的资源需要超时控制。尽管goroutine消耗很少，但文件描述符总是有限的。卡住的连接、不工作的连接甚至恶意断掉的连接不应该消耗它们。</p>
+<p>一个超过最大文件符的服务器总是不能接受新的连接， 会报下面的失败:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">http</span>: Accept error: accept tcp [::]:<span class="number">80</span>: accept: too many <span class="built_in">open</span> <span class="built_in">files</span>; retrying <span class="operator">in</span> <span class="number">1</span>s</div></pre></td></tr></table></figure>
+
+<p>一个缺省的 <code>http.Server</code>, 、就像包文档中的例子<code>http.ListenAndServe</code> 和 <code>http.ListenAndServeTLS</code>， 没有设置任何超时控制, 你肯定不是你想要的。</p>
+<p><img src="timeouts.png" alt=""></p>
+<p>在<code>http.Server</code>有三个参数控制timeout: <code>ReadTimeout</code>, <code>WriteTimeout</code> 和 <code>IdleTimeout</code>,你可以显示地设置它们:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">srv := &http.Server{</div><div class="line">    ReadTimeout: <span class="number"> 5</span> * time.Second,</div><div class="line">    WriteTimeout:<span class="number"> 10</span> * time.Second,</div><div class="line">    IdleTimeout: <span class="number"> 120</span> * time.Second,</div><div class="line">    TLSConfig:    tlsConfig,</div><div class="line">    Handler:      serveMux,</div><div class="line">}</div><div class="line">log.Println(srv.ListenAndServeTLS(<span class="string">""</span>, <span class="string">""</span>))</div></pre></td></tr></table></figure>
+
+<p><code>ReadTimeout</code>的时间范围起自连接备接受，止于请求的body完全读出。在<code>net/http</code>的实现中它在连接<code>Accept</code>后通过<code>SetReadDeadline</code><a href="https://github.com/golang/go/blob/3ba31558d1bca8ae6d2f03209b4cae55381175b3/src/net/http/server.go#L750" target="_blank" rel="external">设置</a>。</p>
+<p><code>ReadTimeout</code>最大的问题它不允许服务器给客户端更多的时间去请求的body stream。 go 1.8新引入了一个参数<code>ReadHeaderTimeout</code>，它止于读完请求头。然后一直有一些不清楚的方式去设置读超时，相关的设计讨论可以参考<a href="https://golang.org/issue/16100" target="_blank" rel="external">#16100</a>。</p>
+<p><code>WriteTimeout</code>超时正常起自读完请求头， 止于response写完(也就是<code>ServeHTTP</code>的生命周期)， 通过<code>readRequest</code>的<a href="https://github.com/golang/go/blob/3ba31558d1bca8ae6d2f03209b4cae55381175b3/src/net/http/server.go#L753-L755" target="_blank" rel="external">结尾</a>处的<code>SetWriteDeadline</code>设置。</p>
+<p>然后，当通过HTTPS连接时，<code>SetWriteDeadline</code>在<code>Accept</code>后立即设置， 所以它也包含TLS握手的packet的写。讨厌的是，这意味着<code>WriteTimeout</code>包含http头的读以及第一个字节的等待。</p>
+<p><code>ReadTimeout</code>和<code>WriteTimeout</code>是绝对值，无法在Handler中更改它(<a href="https://golang.org/issue/16100" target="_blank" rel="external">#16100</a>)。</p>
+<p>Go 1.8还新引入了<code>IdleTimeout</code>参数， 用来限制服务端<code>Keep-Alive</code>连接在重用前idle的数量。</p>
+<p>Go 1.8之前的版本， <code>ReadTimeout</code>在请求完成后又立即开始滴答(tick)，这对<code>Keep-Alive</code>连接是不合适的: idle time会消耗客户端允许发送请求的时间，导致一些快的客户端会有不期望的超时。</p>
+<p>对于不可信的客户端和网络，你应该设置<code>Read</code>, <code>Write</code> 和 <code>Idle</code>超时， 这样一个读或者写很慢的客户端不会长时间占用一个连接。</p>
+<p>对于go 1.8之前的 HTTP/1.1超时的背景知识， 你可以参考Cloudflare的<a href="https://blog.cloudflare.com/the-complete-guide-to-golang-net-http-timeouts/" target="_blank" rel="external">博客</a>。</p>
+<h3 id="HTTP/2">HTTP/2</h3>
+<p>HTTP/2在 Go 1.6+中回自动启用， 只要它满足下面的条件：</p>
+<ul>
+<li>请求通过<code>TLS/HTTPS</code></li>
+<li><code>Server.TLSNextProto</code>为nil (如果设置一个空的map，则禁止HTTP/2)</li>
+<li><code>Server.TLSConfig</code>已被设置，<code>ListenAndServeTLS</code>被调用或者下一条</li>
+<li><code>Serve</code>被调用，并且<code>tls.Config.NextProtos</code>包含<code>h2</code> (比如[]string{&quot;h2&quot;, &quot;http/1.1&quot;)</li>
+</ul>
+<p>HTTP/2 和 HTTP/1.1有些不同，因为同一个连接同时会服务多个请求，但是Go抽象了统一的超时控制接口。</p>
+<p>遗憾的是, Go 1.7中的<code>ReadTimeout</code>会打断 HTTP/2 连接，它不会为每一个连接重置，而是在连接初次建立时就设置而不会重置，当超时后就会断掉 HTTP/2连接。 Go 1.8 修复了这个<a href="https://github.com/golang/go/issues/16450" target="_blank" rel="external">问题</a>。</p>
+<p>基于此和<code>ReadTimeout</code>的idle time问题，我强烈建议你尽快升级到1.8。</p>
+<h3 id="TCP_Keep-Alives">TCP Keep-Alives</h3>
+<p>如果你使用<code>ListenAndServe</code>(与传入<code>net.Listener</code>给<code>Serve</code>不同，这个方法使用缺省值提供了零保护措施)， 3分钟的TCP Keep-Alive会<a href="https://github.com/golang/go/blob/61db2e4efa2a8f558fd3557958d1c86dbbe7d3cc/src/net/http/server.go#L3023-L3039" target="_blank" rel="external">自动设置</a>,它会让彻底消失的client有机会放弃连接， 我的经验是不要完全相信它， 无论如何也要设置超时。</p>
+<p>首先， 3分钟太长了，你可以使用你自己的<code>tcpKeepAliveListener</code>调整它。、</p>
+<p>更重要的是，<code>Keep-Alive</code>只是保证client还活着，但不会设置连接存活的上限。恶意攻击的客户端会打开非常多的连接，导致你的服务器打开很多文件描述符， 通过未完成的请求， 会导致你的服务拒绝服务。</p>
+<p>最后，我的经验是连接往往会导致泄漏，知道<a href="https://github.com/FiloSottile/Heartbleed/commit/4a3332ca1dc07aedf24b8540857792f72624cdf7" target="_blank" rel="external">超时起作用</a>。</p>
+<h3 id="ServeMux">ServeMux</h3>
+<p>包级别的<code>http.Handle[Func]</code> (和你的web框架)注册handler到全局的<code>http.DefaultServeMux</code>， 如果<code>Server.Handler</code>是nil的话， 你应该避免这样做。</p>
+<p>任何你输入的包，不管是直接的还是间接的，都可以访问<code>http.DefaultServeMux</code>，可能会注册你不期望的route。</p>
+<p>例如，包依赖中有任何一个库导入了<code>net/http/pprof</code>,客户端都能得到你的应用的CPU的profile。 你可以使用<code>net/http/pprof</code>手工注册。</p>
+<p>正确的是， 初始化你自己的<code>http.ServeMux</code>,把handler注册到它的上面， 设置它为<code>Server.Handler</code>, 或者设置你自己的web框架为<code>Server.Handler</code>。</p>
+<h3 id="Logging">Logging</h3>
+<p>net/http在调用你的handler之前做了大量的工作， 比如<a href="">接受连接</a><a href="https://github.com/golang/go/blob/1106512db54fc2736c7a9a67dd553fc9e1fca742/src/net/http/server.go#L2631-L2653，" target="_blank" rel="external">https://github.com/golang/go/blob/1106512db54fc2736c7a9a67dd553fc9e1fca742/src/net/http/server.go#L2631-L2653，</a> <a href="https://github.com/golang/go/blob/1106512db54fc2736c7a9a67dd553fc9e1fca742/src/net/http/server.go#L1718-L1728" target="_blank" rel="external">TLS握手</a>等等……</p>
+<p>当任何一个步骤出错，它会写一行日志到<code>Server.ErrorLog</code>。其中一些错误， 比如超时和连接重置， 在互联网上是正常的。你可以连接大部分错误并把它们加入到metric中，这要归功于这个保证：</p>
+<blockquote>
+<p>Each logging operation makes a single call to the Writer’s Write method.</p>
+</blockquote>
+<p>如果在handler中你不想输出堆栈log, 你可以使用<code>panic(nil)</code>或者使用Go 1.8的<code>panic(http.ErrAbortHandler)</code>。</p>
+<h3 id="Metrics">Metrics</h3>
+<p>metric可以帮助你监控打开的文件描述符。<a href="https://github.com/prometheus/client_golang/blob/575f371f7862609249a1be4c9145f429fe065e32/prometheus/process_collector.go" target="_blank" rel="external">Prometheus使用<code>proc</code>文件系统来帮助你完成这些</a>。</p>
+<p>如果你需要调研泄漏问题， 你可以使用<code>Server.ConnState</code>钩子来得到更多的连接的细节metric。注意，不保持state就没有方式能保持一个正确的<code>StateActive</code>数量，所以你需要维护一个<code>map[net.Conn]ConnState</code>。</p>
+<h3 id="结论">结论</h3>
+<p>使用Nginx做Go服务前端的日志一去不复返了， 但是面对互联网你仍然需要做一些额外的防护措施， 可能需要升级到新的Go 1.8版本。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
+<p>先前 <code>crypto/tls</code> 太慢而<code>net/http</code>也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。</p>
+<p>在Cloudflare我们最近试验了直接暴漏纯Go的服务作为主机。 Go 1.8的<code>net/http</code> 和 <code>crypto/tls</code> 提供了稳定的、高性能并且灵活的功能。</p>
+<p>然后，需要做一些调优的工作，本文我们将展示怎么去调优和使web服务器更稳定。</p>
+]]>
+    
+    </summary>
+    
+      <category term="Go" scheme="http://colobu.com/categories/Go/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[完全静态编译一个Go程序]]></title>
@@ -91,7 +187,7 @@
     <link href="http://colobu.com/2018/06/28/Error-response-from-daemon-error-creating-overlay-mount-to-var-lib-docker-overlay2/"/>
     <id>http://colobu.com/2018/06/28/Error-response-from-daemon-error-creating-overlay-mount-to-var-lib-docker-overlay2/</id>
     <published>2018-06-28T08:45:44.000Z</published>
-    <updated>2018-06-28T08:59:50.657Z</updated>
+    <updated>2018-06-28T08:59:50.658Z</updated>
     <content type="html"><![CDATA[<p>最近在<code>centos7.1</code>使用docker运行<code>redis</code>镜像，出现下面的错误：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">/usr/bin/docker-current: <span class="keyword">Error</span> response <span class="keyword">from</span> daemon: <span class="keyword">error</span> creating overlay mount <span class="keyword">to</span> /var/<span class="keyword">lib</span>/docker/overlay2/<span class="number">65</span>f3c109fb903539820f84856d2725af784f2f03f95b1f0214e34184e4d61ff7-init/merged: invalid argument.</div><div class="line">See <span class="comment">'/usr/bin/docker-current run --help'.</span></div></pre></td></tr></table></figure>
 
@@ -141,7 +237,7 @@
     <link href="http://colobu.com/2018/06/26/implement-quick-sort-in-golang/"/>
     <id>http://colobu.com/2018/06/26/implement-quick-sort-in-golang/</id>
     <published>2018-06-26T10:29:33.000Z</published>
-    <updated>2018-06-26T11:22:30.657Z</updated>
+    <updated>2018-06-26T11:22:30.658Z</updated>
     <content type="html"><![CDATA[<p>快速排序(quick sort)号称是二十世纪最伟大的十大算法之一(<a href="http://www.uta.edu/faculty/rcli/TopTen/topten.pdf" target="_blank" rel="external">The Best of the 20th Century: Editors Name Top 10 Algorithms</a>), 但是快速排序也是最不容易实现的排序算法之一 (<a href=""></a>)。虽然它的原理非常的简单，但实现起来很容易出错。 也曾因为快排导致腥风血雨甚至网站攻击事件。</p>
 <p>快速排序由C. A. R. Hoare在1962年提出。它的基本思想是：通过一趟排序将要排序的数据分割成独立的两部分，其中一部分的所有数据都比另外一部分的所有数据都要小，然后再按此方法对这两部分数据分别进行快速排序，整个排序过程可以递归进行，以此达到整个数据变成有序序列。</p>
 <blockquote>
@@ -188,7 +284,7 @@
     <link href="http://colobu.com/2018/06/13/cgo-articles/"/>
     <id>http://colobu.com/2018/06/13/cgo-articles/</id>
     <published>2018-06-13T10:08:15.000Z</published>
-    <updated>2018-07-19T09:46:19.623Z</updated>
+    <updated>2018-07-19T09:46:19.624Z</updated>
     <content type="html"><![CDATA[<p>虽然<code>CGO</code>属于不太常用的技术，但是偶尔在一些场景中还是会用到的，本文搜集了一些<code>CGO</code>的文章, 方便大家学习和参考。</p>
 <a id="more"></a>
 <h3 id="官方文章">官方文章</h3>
@@ -265,7 +361,7 @@
     <link href="http://colobu.com/2018/05/29/setup-ipfs-private-network/"/>
     <id>http://colobu.com/2018/05/29/setup-ipfs-private-network/</id>
     <published>2018-05-29T09:05:56.000Z</published>
-    <updated>2018-05-29T09:35:26.386Z</updated>
+    <updated>2018-05-29T09:35:26.387Z</updated>
     <content type="html"><![CDATA[<p>IPFS (InterPlanetary File System) 是一个面向全球的、点对点的分布式版本文件系统。它用基于内容的地址替代基于域名的地址，也就是用户寻找的不是某个地址而是储存在某个地方的内容，不需要验证发送者的身份，而只需要验证内容的哈希，通过这样可以让网页的速度更快、更安全、更健壮、更持久。IPFS表示，IPFS未来将替代HTTP（以及其他的许多东西）。</p>
 <blockquote>
 <p>IPFS 和 BitTorrent 的区别: <a href="https://github.com/ipfs/faq/issues/17" target="_blank" rel="external">How does it compare to BitTorrent&#39;s Project Maelstrom?</a></p>
@@ -391,7 +487,7 @@
     <link href="http://colobu.com/2018/04/24/weibo-share-2018/"/>
     <id>http://colobu.com/2018/04/24/weibo-share-2018/</id>
     <published>2018-04-24T10:29:50.000Z</published>
-    <updated>2018-04-24T10:32:10.251Z</updated>
+    <updated>2018-04-24T10:32:10.252Z</updated>
     <content type="html"><![CDATA[<p>这是公司内部分享的各部门春晚保障的技术分享。我将其中的和公司隐私相关的数据删除了，只保留了技术的介绍，总结了一些知识点。</p>
 <p>Tim开场白。</p>
 <p>双十一、微信红包和微博的区别（无法预期）。</p>
@@ -574,7 +670,7 @@
     <link href="http://colobu.com/2018/03/26/channel-patterns/"/>
     <id>http://colobu.com/2018/03/26/channel-patterns/</id>
     <published>2018-03-26T14:00:35.000Z</published>
-    <updated>2018-03-28T06:48:19.138Z</updated>
+    <updated>2018-03-28T06:48:19.139Z</updated>
     <content type="html"><![CDATA[<p>Channel是Go中的一种类型，和goroutine一起为Go提供了并发技术， 它在开发中得到了广泛的应用。Go鼓励人们通过Channel在goroutine之间传递数据的引用(就像把数据的owner从一个goroutine传递给另外一个goroutine), <a href="http://golang.org/doc/effective_go.html" target="_blank" rel="external">Effective Go</a>总结了这么一句话：</p>
 <blockquote>
 <p>Do not communicate by sharing memory; instead, share memory by communicating.</p>
@@ -927,7 +1023,7 @@
     <link href="http://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/"/>
     <id>http://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/</id>
     <published>2018-03-12T09:14:11.000Z</published>
-    <updated>2018-03-12T11:36:03.558Z</updated>
+    <updated>2018-03-12T11:36:03.559Z</updated>
     <content type="html"><![CDATA[<p>Java 8 和 Java 9中 <code>concurrent</code>包有了一些改变， 本文对这些改变做了汇总。</p>
 <a id="more"></a>
 <h2 id="Java_8_中_Concurrent_package的改变">Java 8 中 Concurrent package的改变</h2>
@@ -985,7 +1081,7 @@
     <link href="http://colobu.com/2018/03/12/20-Examples-of-Using-Java%E2%80%99s-CompletableFuture/"/>
     <id>http://colobu.com/2018/03/12/20-Examples-of-Using-Java’s-CompletableFuture/</id>
     <published>2018-03-12T06:52:48.000Z</published>
-    <updated>2018-03-12T11:36:23.781Z</updated>
+    <updated>2018-03-12T11:36:23.782Z</updated>
     <content type="html"><![CDATA[<blockquote>
 <p>在Java中异步编程，不一定非要使用rxJava, Java本身的库中的CompletableFuture可以很好的应对大部分的场景。</p>
 </blockquote>
@@ -1303,7 +1399,7 @@
     <link href="http://colobu.com/2018/02/27/go-addressable/"/>
     <id>http://colobu.com/2018/02/27/go-addressable/</id>
     <published>2018-02-27T10:48:46.000Z</published>
-    <updated>2018-02-28T06:05:42.727Z</updated>
+    <updated>2018-02-28T06:05:42.728Z</updated>
     <content type="html"><![CDATA[<p>Go语言规范中规定了可寻址(addressable)对象的定义,</p>
 <blockquote>
 <p>For an operand x of type T, the address operation &amp;x generates a pointer of type *T to x. The operand must be addressable, that is, either a variable, pointer indirection, or slice indexing operation; or a field selector of an addressable struct operand; or an array indexing operation of an addressable array. As an exception to the addressability requirement, x may also be a (possibly parenthesized) composite literal. If the evaluation of x would cause a run-time panic, then the evaluation of &amp;x does too.</p>
@@ -1420,7 +1516,7 @@
     <link href="http://colobu.com/2018/02/24/Fixing-Bugs-in-Running-Java-Code-with-Dynamic-Attach/"/>
     <id>http://colobu.com/2018/02/24/Fixing-Bugs-in-Running-Java-Code-with-Dynamic-Attach/</id>
     <published>2018-02-24T11:00:24.000Z</published>
-    <updated>2018-02-24T11:20:37.458Z</updated>
+    <updated>2018-02-24T11:20:37.459Z</updated>
     <content type="html"><![CDATA[<p>原文: <a href="https://www.sitepoint.com/fixing-bugs-in-running-java-code-with-dynamic-attach/" target="_blank" rel="external">Fixing Bugs in Running Java Code with Dynamic Attach</a> by Rafael Winterhalter</p>
 <p><a href="https://www.oschina.net" target="_blank" rel="external">开源中国</a>组织翻译: <a href="http://www.oschina.net/translate/fixing-bugs-in-running-java-code-with-dynamic-attach" target="_blank" rel="external">在 Java 中运用动态挂载实现 Bug 的热修复</a> by TedCruz、<br>无若、LeoXu、Tocy等。</p>
 <p>大多数 JVM 具备 Java 的 <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jpda/enhancements1.4.html#hotswap" target="_blank" rel="external">HotSwap</a> 特性，大部分开发者认为它仅仅是一个调试工具。利用这一特性,有可能在不重启 Java 进程条件下，改变 Java 方法的实现。典型的例子是使用 IDE 来编码。然而 HotSwap 可以在生产环境中实现这一功能。通过这种方式，不用停止运行程序，就可以扩展在线的应用程序，或者在运行的项目上修复小的错误。这篇文章中，我将演示动态绑定、应用运行期代码变化进行绑定、介绍一些工具 API 以及 <a href="http://bytebuddy.net/" target="_blank" rel="external">Byte Buddy 库</a>，这个库提供了一些 API 代码改变更方便。</p>
@@ -1790,53 +1886,6 @@
     </summary>
     
       <category term="架构" scheme="http://colobu.com/categories/%E6%9E%B6%E6%9E%84/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[使用二进制形式发布go package]]></title>
-    <link href="http://colobu.com/2018/01/10/use-binary-package-in-go/"/>
-    <id>http://colobu.com/2018/01/10/use-binary-package-in-go/</id>
-    <published>2018-01-10T08:25:08.000Z</published>
-    <updated>2018-01-10T09:51:47.473Z</updated>
-    <content type="html"><![CDATA[<p>我们在使用Go进行开发的时候， 经常会使用到第三方的库， 这时候我们一般都会通过<code>go get</code>到github.com、bitbucket或者自己私有库中去拉取第三库的源代码。 今天正好群里有网友问能不能将自己开发的库以二进制形式提供给用户，我就顺便整理了一下。</p>
-<p>以二进制方式提供库的动机可能是为了保护自己公司的知识产权，也有可能是从安全的角度考虑，避免一些关键信息的泄漏等等，这不是本文讨论的范围。</p>
-<a id="more"></a>
-<p>虽然以前的版本能够曲折的实现使用二进制的库，但是正式提供的方案是在Go 1.7中。 在 <a href="https://golang.org/doc/go1.7" target="_blank" rel="external">Go 1.7 Release Notes</a>提到：</p>
-<blockquote>
-<p>This release adds experimental, minimal support for building programs using binary-only packages, packages distributed in binary form without the corresponding source code. This feature is needed in some commercial settings but is not intended to be fully integrated into the rest of the toolchain. For example, tools that assume access to complete source code will not work with such packages, and there are no plans to support such packages in the “go get” command.</p>
-<p>在 <a href="https://golang.org/pkg/go/build/#hdr-Binary_Only_Packages" target="_blank" rel="external">Package build</a>文档中也有相关的介绍：</p>
-<p>It is possible to distribute packages in binary form without including the source code used for compiling the package. To do this, the package must be distributed with a source file not excluded by build constraints and containing a &quot;//go:binary-only-package&quot; comment. Like a build constraint, this comment must appear near the top of the file, preceded only by blank lines and other line comments and with a blank line following the comment, to separate it from the package documentation. Unlike build constraints, this comment is only recognized in non-test Go source files.</p>
-<p>The minimal source code for a binary-only package is therefore:</p>
-</blockquote>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">&gt; <span class="comment">//go:binary-only-package</span></div><div class="line">&gt; </div><div class="line">&gt; <span class="keyword">package</span> mypkg</div><div class="line">&gt;</div></pre></td></tr></table></figure>
-
-<blockquote>
-<p>The source code may include additional Go code. That code is never compiled but will be processed by tools like godoc and might be useful as end-user documentation.</p>
-</blockquote>
-<p>你只需要提供一个编译好的库， 同时提供为这个package提供一个源文件。这个源文件不用包含任何代码逻辑，只需增加<code>//go:binary-only-package</code>指令即可(注意<code>//</code>和<code>go:...</code>之间不要加空格)。 这样用户在使用的时候，就可以直接使用你这个二进制的库了。</p>
-<p>当然，为了用户方便，比如一些工具和IDE的支持，你可以将<code>exported</code>的类型定义到这个文件中。并且， 只需提供一些&quot;虚假&quot;的实现即可，只是为了IDE工具知道这个package包含的<code>exported</code>类型而已。</p>
-<p>这个特性的实现是由Russ Cox在这两个提交中实现的： <a href="https://go-review.googlesource.com/c/go/+/22432" target="_blank" rel="external">CL#22432</a>、<a href="https://go-review.googlesource.com/c/go/+/22433" target="_blank" rel="external">CL#22433</a>, 他还提交了一个设计文档：<a href="https://github.com/golang/proposal/blob/master/design/2775-binary-only-packages.md" target="_blank" rel="external">Proposal: Binary-Only Package</a>。</p>
-<p>相关的讨论在: <a href="https://github.com/golang/go/issues/12186" target="_blank" rel="external">#12186</a>、<a href="https://github.com/golang/go/issues/2775" target="_blank" rel="external">#2775</a>。</p>
-<p>下面我们以一个实例看看如何使用的。</p>
-<p>下面是我们实现业务逻辑的一个package，提供了一些常量、变量、函数和struct类型，把它编译成<code>x.a</code>。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> x</div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></div><div class="line"></div><div class="line"><span class="keyword">const</span> PI =<span class="number"> 3.14</span></div><div class="line"></div><div class="line"><span class="keyword">var</span> (</div><div class="line">	X =<span class="number"> 100</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">func</span> init() {</div><div class="line">	fmt.Println(<span class="string">"x init"</span>)</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">func</span> Add(x, y <span class="typename">int</span>) <span class="typename">int</span> {</div><div class="line">	<span class="keyword">return</span> x + y</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">type</span> S <span class="keyword">struct</span> {</div><div class="line">	X, Y <span class="typename">int</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>这是我们公司的核心资产，靠这个库卖钱呢，所以我们不想把这个源代码公开出去。那么我们可以提供给用户编译好的<code>x.a</code>，并且提供一个<code>dummy</code>的实现：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//go:binary-only-package</span></div><div class="line"></div><div class="line"><span class="keyword">package</span> x</div><div class="line"></div><div class="line"><span class="keyword">const</span> PI =<span class="number"> 0.0</span></div><div class="line"></div><div class="line"><span class="keyword">var</span> (</div><div class="line">	X =<span class="number"> 0</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">func</span> Add(x, y <span class="typename">int</span>) <span class="typename">int</span> {</div><div class="line">	<span class="keyword">return</span><span class="number"> 0</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">type</span> S <span class="keyword">struct</span> {</div><div class="line">	X, Y <span class="typename">int</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>用户拿到这个<code>x.a</code>后放在<code>$GOPATH/pkg</code>相应的package下，同时将这个go文件放在<code>$GOPATH/src</code>，这样用户就可以正常使用这个库了。</p>
-<p>当然，你最好将你的库打包成一个zip,这样用户unzip一下就可以方便的copy到<code>$GOPATH</code>中。</p>
-<p>用<code>golang binary-only packages</code>也能搜到一些相关的<a href="https://medium.com/@shijuvar/using-binary-only-packages-in-go-667bd7b123c8" target="_blank" rel="external">教程</a>，有人还写了一个样板例子：<a href="https://github.com/tcnksm/go-binary-only-package" target="_blank" rel="external">tcnksm/go-binary-only-package</a></p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>我们在使用Go进行开发的时候， 经常会使用到第三方的库， 这时候我们一般都会通过<code>go get</code>到github.com、bitbucket或者自己私有库中去拉取第三库的源代码。 今天正好群里有网友问能不能将自己开发的库以二进制形式提供给用户，我就顺便整理了一下。</p>
-<p>以二进制方式提供库的动机可能是为了保护自己公司的知识产权，也有可能是从安全的角度考虑，避免一些关键信息的泄漏等等，这不是本文讨论的范围。</p>
-]]>
-    
-    </summary>
-    
-      <category term="Go" scheme="http://colobu.com/categories/Go/"/>
     
   </entry>
   
