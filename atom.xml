@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://colobu.com/"/>
-  <updated>2018-07-26T03:19:25.250Z</updated>
+  <updated>2018-07-26T03:21:29.355Z</updated>
   <id>http://colobu.com/</id>
   
   <author>
@@ -15,11 +15,11 @@
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
   
   <entry>
-    <title><![CDATA[[翻译]Go HttpServer 最佳实践]]></title>
+    <title><![CDATA[[译]Go HttpServer 最佳实践]]></title>
     <link href="http://colobu.com/2018/07/25/exposing-go-on-the-internet/"/>
     <id>http://colobu.com/2018/07/25/exposing-go-on-the-internet/</id>
     <published>2018-07-25T11:09:15.000Z</published>
-    <updated>2018-07-26T03:18:59.573Z</updated>
+    <updated>2018-07-26T03:21:20.041Z</updated>
     <content type="html"><![CDATA[<p>这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
 <p>先前 <code>crypto/tls</code> 太慢而<code>net/http</code>也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。</p>
 <p>在Cloudflare我们最近试验了直接暴漏纯Go的服务作为主机。 Go 1.8的<code>net/http</code> 和 <code>crypto/tls</code> 提供了稳定的、高性能并且灵活的功能。</p>
