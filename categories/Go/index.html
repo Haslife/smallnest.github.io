@@ -146,7 +146,7 @@
 		<img class="article-post-image" src="/images/logos/golang6.png">
 	  
       
-        <p>这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
+        <p>这是 Cloudflare 的 Filippo Valsorda 2016年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
 <p>先前 <code>crypto/tls</code> 太慢而<code>net/http</code>也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。</p>
 <p>在Cloudflare我们最近试验了直接暴漏纯Go的服务作为主机。 Go 1.8的<code>net/http</code> 和 <code>crypto/tls</code> 提供了稳定的、高性能并且灵活的功能。</p>
 <p>然后，需要做一些调优的工作，本文我们将展示怎么去调优和使web服务器更稳定。</p>

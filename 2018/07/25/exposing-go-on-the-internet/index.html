@@ -5,21 +5,21 @@
   
   <title>[译]Go HttpServer 最佳实践 | 鸟窝</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇文章， 虽然过去两年了，但是依然很有意义。
+  <meta name="description" content="这是 Cloudflare 的 Filippo Valsorda 2016年发表在Gopher Academy的一篇文章， 虽然过去两年了，但是依然很有意义。
 先前 crypto/tls 太慢而net/http也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。
 在Cloudflare我们最近试验了直接暴漏纯Go的服务作为">
 <meta property="og:type" content="article">
 <meta property="og:title" content="[译]Go HttpServer 最佳实践">
 <meta property="og:url" content="http://colobu.com/2018/07/25/exposing-go-on-the-internet/">
 <meta property="og:site_name" content="鸟窝">
-<meta property="og:description" content="这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇文章， 虽然过去两年了，但是依然很有意义。
+<meta property="og:description" content="这是 Cloudflare 的 Filippo Valsorda 2016年发表在Gopher Academy的一篇文章， 虽然过去两年了，但是依然很有意义。
 先前 crypto/tls 太慢而net/http也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。
 在Cloudflare我们最近试验了直接暴漏纯Go的服务作为">
 <meta property="og:image" content="banner.jpg">
 <meta property="og:image" content="timeouts.png">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="[译]Go HttpServer 最佳实践">
-<meta name="twitter:description" content="这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇文章， 虽然过去两年了，但是依然很有意义。
+<meta name="twitter:description" content="这是 Cloudflare 的 Filippo Valsorda 2016年发表在Gopher Academy的一篇文章， 虽然过去两年了，但是依然很有意义。
 先前 crypto/tls 太慢而net/http也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。
 在Cloudflare我们最近试验了直接暴漏纯Go的服务作为">
 
@@ -151,7 +151,7 @@
 	  
 	  
       
-        <p>这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
+        <p>这是 Cloudflare 的 Filippo Valsorda 2016年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
 <p>先前 <code>crypto/tls</code> 太慢而<code>net/http</code>也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。</p>
 <p>在Cloudflare我们最近试验了直接暴漏纯Go的服务作为主机。 Go 1.8的<code>net/http</code> 和 <code>crypto/tls</code> 提供了稳定的、高性能并且灵活的功能。</p>
 <p>然后，需要做一些调优的工作，本文我们将展示怎么去调优和使web服务器更稳定。</p>

@@ -3,7 +3,7 @@
   
   <url>
     <loc>http://colobu.com/2018/07/25/exposing-go-on-the-internet/</loc>
-    <lastmod>2018-07-26T03:21:20.041Z</lastmod>
+    <lastmod>2018-07-31T08:27:34.556Z</lastmod>
   </url>
   
   <url>
@@ -18,7 +18,7 @@
   
   <url>
     <loc>http://colobu.com/2018/06/13/cgo-articles/</loc>
-    <lastmod>2018-07-19T09:46:19.624Z</lastmod>
+    <lastmod>2018-07-19T09:46:19.623Z</lastmod>
   </url>
   
   <url>
@@ -28,12 +28,12 @@
   
   <url>
     <loc>http://colobu.com/2018/06/28/Error-response-from-daemon-error-creating-overlay-mount-to-var-lib-docker-overlay2/</loc>
-    <lastmod>2018-06-28T08:59:50.658Z</lastmod>
+    <lastmod>2018-06-28T08:59:50.657Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2018/06/26/implement-quick-sort-in-golang/</loc>
-    <lastmod>2018-06-26T11:22:30.658Z</lastmod>
+    <lastmod>2018-06-26T11:22:30.657Z</lastmod>
   </url>
   
   <url>
@@ -43,17 +43,17 @@
   
   <url>
     <loc>http://colobu.com/2018/05/29/setup-ipfs-private-network/</loc>
-    <lastmod>2018-05-29T09:35:26.387Z</lastmod>
+    <lastmod>2018-05-29T09:35:26.386Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2018/04/24/weibo-share-2018/</loc>
-    <lastmod>2018-04-24T10:32:10.252Z</lastmod>
+    <lastmod>2018-04-24T10:32:10.251Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2018/03/26/channel-patterns/</loc>
-    <lastmod>2018-03-28T06:48:19.139Z</lastmod>
+    <lastmod>2018-03-28T06:48:19.138Z</lastmod>
   </url>
   
   <url>
@@ -68,12 +68,12 @@
   
   <url>
     <loc>http://colobu.com/2018/03/12/20-Examples-of-Using-Java%E2%80%99s-CompletableFuture/</loc>
-    <lastmod>2018-03-12T11:36:23.782Z</lastmod>
+    <lastmod>2018-03-12T11:36:23.781Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/</loc>
-    <lastmod>2018-03-12T11:36:03.559Z</lastmod>
+    <lastmod>2018-03-12T11:36:03.558Z</lastmod>
   </url>
   
   <url>
@@ -83,12 +83,12 @@
   
   <url>
     <loc>http://colobu.com/2014/09/30/deploy-a-project-to-maven-central/</loc>
-    <lastmod>2018-03-02T05:22:12.729Z</lastmod>
+    <lastmod>2018-03-02T05:22:12.728Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2018/02/27/go-addressable/</loc>
-    <lastmod>2018-02-28T06:05:42.728Z</lastmod>
+    <lastmod>2018-02-28T06:05:42.727Z</lastmod>
   </url>
   
   <url>
@@ -98,7 +98,7 @@
   
   <url>
     <loc>http://colobu.com/2018/02/24/Fixing-Bugs-in-Running-Java-Code-with-Dynamic-Attach/</loc>
-    <lastmod>2018-02-24T11:20:37.459Z</lastmod>
+    <lastmod>2018-02-24T11:20:37.458Z</lastmod>
   </url>
   
   <url>
@@ -118,7 +118,7 @@
   
   <url>
     <loc>http://colobu.com/2018/01/10/use-binary-package-in-go/</loc>
-    <lastmod>2018-01-10T09:51:47.474Z</lastmod>
+    <lastmod>2018-01-10T09:51:47.473Z</lastmod>
   </url>
   
   <url>
@@ -128,17 +128,17 @@
   
   <url>
     <loc>http://colobu.com/2014/09/18/linux-tcpip-tuning/</loc>
-    <lastmod>2018-01-09T06:50:11.897Z</lastmod>
+    <lastmod>2018-01-09T06:50:11.896Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2016/06/07/simple-golang-tls-examples/</loc>
-    <lastmod>2018-01-03T04:10:02.119Z</lastmod>
+    <lastmod>2018-01-03T04:10:02.118Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2017/12/28/top-golang-articles-of-2017/</loc>
-    <lastmod>2018-01-02T09:48:46.190Z</lastmod>
+    <lastmod>2018-01-02T09:48:46.189Z</lastmod>
   </url>
   
   <url>
@@ -153,12 +153,12 @@
   
   <url>
     <loc>http://colobu.com/2017/09/30/functor-applicative-and-monad/</loc>
-    <lastmod>2017-12-27T04:06:36.568Z</lastmod>
+    <lastmod>2017-12-27T04:06:36.567Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2017/12/13/A-Million-WebSockets-and-Go/</loc>
-    <lastmod>2017-12-19T02:15:37.966Z</lastmod>
+    <lastmod>2017-12-19T02:15:37.965Z</lastmod>
   </url>
   
   <url>
@@ -178,12 +178,12 @@
   
   <url>
     <loc>http://colobu.com/2017/12/07/One-Machine-Learning-for-Go/</loc>
-    <lastmod>2017-12-07T10:25:24.710Z</lastmod>
+    <lastmod>2017-12-07T10:25:24.709Z</lastmod>
   </url>
   
   <url>
     <loc>http://colobu.com/2017/11/29/event-loop-networking-in-Go/</loc>
-    <lastmod>2017-11-29T09:33:48.321Z</lastmod>
+    <lastmod>2017-11-29T09:33:48.320Z</lastmod>
   </url>
   
   <url>

@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://colobu.com/"/>
-  <updated>2018-07-26T03:23:09.059Z</updated>
+  <updated>2018-07-31T08:27:55.383Z</updated>
   <id>http://colobu.com/</id>
   
   <author>
@@ -19,8 +19,8 @@
     <link href="http://colobu.com/2018/07/25/exposing-go-on-the-internet/"/>
     <id>http://colobu.com/2018/07/25/exposing-go-on-the-internet/</id>
     <published>2018-07-25T11:09:15.000Z</published>
-    <updated>2018-07-26T03:21:20.041Z</updated>
-    <content type="html"><![CDATA[<p>这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
+    <updated>2018-07-31T08:27:34.556Z</updated>
+    <content type="html"><![CDATA[<p>这是 Cloudflare 的 Filippo Valsorda 2016年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
 <p>先前 <code>crypto/tls</code> 太慢而<code>net/http</code>也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。</p>
 <p>在Cloudflare我们最近试验了直接暴漏纯Go的服务作为主机。 Go 1.8的<code>net/http</code> 和 <code>crypto/tls</code> 提供了稳定的、高性能并且灵活的功能。</p>
 <p>然后，需要做一些调优的工作，本文我们将展示怎么去调优和使web服务器更稳定。</p>
@@ -98,7 +98,7 @@
 <p>使用Nginx做Go服务前端的日志一去不复返了， 但是面对互联网你仍然需要做一些额外的防护措施， 可能需要升级到新的Go 1.8版本。</p>
 ]]></content>
     <summary type="html">
-    <![CDATA[<p>这是 Cloudflare 的 Filippo Valsorda 2006年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
+    <![CDATA[<p>这是 Cloudflare 的 Filippo Valsorda 2016年发表在Gopher Academy的一篇<a href="https://blog.gopheracademy.com/advent-2016/exposing-go-on-the-internet/" target="_blank" rel="external">文章</a>， 虽然过去两年了，但是依然很有意义。</p>
 <p>先前 <code>crypto/tls</code> 太慢而<code>net/http</code>也很年轻， 所以对于Go web server来说， 通常我们明智的做法把它放在反向代理的后面， 如nginx等，现在不需要了。</p>
 <p>在Cloudflare我们最近试验了直接暴漏纯Go的服务作为主机。 Go 1.8的<code>net/http</code> 和 <code>crypto/tls</code> 提供了稳定的、高性能并且灵活的功能。</p>
 <p>然后，需要做一些调优的工作，本文我们将展示怎么去调优和使web服务器更稳定。</p>
@@ -187,7 +187,7 @@
     <link href="http://colobu.com/2018/06/28/Error-response-from-daemon-error-creating-overlay-mount-to-var-lib-docker-overlay2/"/>
     <id>http://colobu.com/2018/06/28/Error-response-from-daemon-error-creating-overlay-mount-to-var-lib-docker-overlay2/</id>
     <published>2018-06-28T08:45:44.000Z</published>
-    <updated>2018-06-28T08:59:50.658Z</updated>
+    <updated>2018-06-28T08:59:50.657Z</updated>
     <content type="html"><![CDATA[<p>最近在<code>centos7.1</code>使用docker运行<code>redis</code>镜像，出现下面的错误：</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">/usr/bin/docker-current: <span class="keyword">Error</span> response <span class="keyword">from</span> daemon: <span class="keyword">error</span> creating overlay mount <span class="keyword">to</span> /var/<span class="keyword">lib</span>/docker/overlay2/<span class="number">65</span>f3c109fb903539820f84856d2725af784f2f03f95b1f0214e34184e4d61ff7-init/merged: invalid argument.</div><div class="line">See <span class="comment">'/usr/bin/docker-current run --help'.</span></div></pre></td></tr></table></figure>
 
@@ -237,7 +237,7 @@
     <link href="http://colobu.com/2018/06/26/implement-quick-sort-in-golang/"/>
     <id>http://colobu.com/2018/06/26/implement-quick-sort-in-golang/</id>
     <published>2018-06-26T10:29:33.000Z</published>
-    <updated>2018-06-26T11:22:30.658Z</updated>
+    <updated>2018-06-26T11:22:30.657Z</updated>
     <content type="html"><![CDATA[<p>快速排序(quick sort)号称是二十世纪最伟大的十大算法之一(<a href="http://www.uta.edu/faculty/rcli/TopTen/topten.pdf" target="_blank" rel="external">The Best of the 20th Century: Editors Name Top 10 Algorithms</a>), 但是快速排序也是最不容易实现的排序算法之一 (<a href=""></a>)。虽然它的原理非常的简单，但实现起来很容易出错。 也曾因为快排导致腥风血雨甚至网站攻击事件。</p>
 <p>快速排序由C. A. R. Hoare在1962年提出。它的基本思想是：通过一趟排序将要排序的数据分割成独立的两部分，其中一部分的所有数据都比另外一部分的所有数据都要小，然后再按此方法对这两部分数据分别进行快速排序，整个排序过程可以递归进行，以此达到整个数据变成有序序列。</p>
 <blockquote>
@@ -284,7 +284,7 @@
     <link href="http://colobu.com/2018/06/13/cgo-articles/"/>
     <id>http://colobu.com/2018/06/13/cgo-articles/</id>
     <published>2018-06-13T10:08:15.000Z</published>
-    <updated>2018-07-19T09:46:19.624Z</updated>
+    <updated>2018-07-19T09:46:19.623Z</updated>
     <content type="html"><![CDATA[<p>虽然<code>CGO</code>属于不太常用的技术，但是偶尔在一些场景中还是会用到的，本文搜集了一些<code>CGO</code>的文章, 方便大家学习和参考。</p>
 <a id="more"></a>
 <h3 id="官方文章">官方文章</h3>
@@ -361,7 +361,7 @@
     <link href="http://colobu.com/2018/05/29/setup-ipfs-private-network/"/>
     <id>http://colobu.com/2018/05/29/setup-ipfs-private-network/</id>
     <published>2018-05-29T09:05:56.000Z</published>
-    <updated>2018-05-29T09:35:26.387Z</updated>
+    <updated>2018-05-29T09:35:26.386Z</updated>
     <content type="html"><![CDATA[<p>IPFS (InterPlanetary File System) 是一个面向全球的、点对点的分布式版本文件系统。它用基于内容的地址替代基于域名的地址，也就是用户寻找的不是某个地址而是储存在某个地方的内容，不需要验证发送者的身份，而只需要验证内容的哈希，通过这样可以让网页的速度更快、更安全、更健壮、更持久。IPFS表示，IPFS未来将替代HTTP（以及其他的许多东西）。</p>
 <blockquote>
 <p>IPFS 和 BitTorrent 的区别: <a href="https://github.com/ipfs/faq/issues/17" target="_blank" rel="external">How does it compare to BitTorrent&#39;s Project Maelstrom?</a></p>
@@ -487,7 +487,7 @@
     <link href="http://colobu.com/2018/04/24/weibo-share-2018/"/>
     <id>http://colobu.com/2018/04/24/weibo-share-2018/</id>
     <published>2018-04-24T10:29:50.000Z</published>
-    <updated>2018-04-24T10:32:10.252Z</updated>
+    <updated>2018-04-24T10:32:10.251Z</updated>
     <content type="html"><![CDATA[<p>这是公司内部分享的各部门春晚保障的技术分享。我将其中的和公司隐私相关的数据删除了，只保留了技术的介绍，总结了一些知识点。</p>
 <p>Tim开场白。</p>
 <p>双十一、微信红包和微博的区别（无法预期）。</p>
@@ -670,7 +670,7 @@
     <link href="http://colobu.com/2018/03/26/channel-patterns/"/>
     <id>http://colobu.com/2018/03/26/channel-patterns/</id>
     <published>2018-03-26T14:00:35.000Z</published>
-    <updated>2018-03-28T06:48:19.139Z</updated>
+    <updated>2018-03-28T06:48:19.138Z</updated>
     <content type="html"><![CDATA[<p>Channel是Go中的一种类型，和goroutine一起为Go提供了并发技术， 它在开发中得到了广泛的应用。Go鼓励人们通过Channel在goroutine之间传递数据的引用(就像把数据的owner从一个goroutine传递给另外一个goroutine), <a href="http://golang.org/doc/effective_go.html" target="_blank" rel="external">Effective Go</a>总结了这么一句话：</p>
 <blockquote>
 <p>Do not communicate by sharing memory; instead, share memory by communicating.</p>
@@ -1023,7 +1023,7 @@
     <link href="http://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/"/>
     <id>http://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/</id>
     <published>2018-03-12T09:14:11.000Z</published>
-    <updated>2018-03-12T11:36:03.559Z</updated>
+    <updated>2018-03-12T11:36:03.558Z</updated>
     <content type="html"><![CDATA[<p>Java 8 和 Java 9中 <code>concurrent</code>包有了一些改变， 本文对这些改变做了汇总。</p>
 <a id="more"></a>
 <h2 id="Java_8_中_Concurrent_package的改变">Java 8 中 Concurrent package的改变</h2>
@@ -1081,7 +1081,7 @@
     <link href="http://colobu.com/2018/03/12/20-Examples-of-Using-Java%E2%80%99s-CompletableFuture/"/>
     <id>http://colobu.com/2018/03/12/20-Examples-of-Using-Java’s-CompletableFuture/</id>
     <published>2018-03-12T06:52:48.000Z</published>
-    <updated>2018-03-12T11:36:23.782Z</updated>
+    <updated>2018-03-12T11:36:23.781Z</updated>
     <content type="html"><![CDATA[<blockquote>
 <p>在Java中异步编程，不一定非要使用rxJava, Java本身的库中的CompletableFuture可以很好的应对大部分的场景。</p>
 </blockquote>
@@ -1399,7 +1399,7 @@
     <link href="http://colobu.com/2018/02/27/go-addressable/"/>
     <id>http://colobu.com/2018/02/27/go-addressable/</id>
     <published>2018-02-27T10:48:46.000Z</published>
-    <updated>2018-02-28T06:05:42.728Z</updated>
+    <updated>2018-02-28T06:05:42.727Z</updated>
     <content type="html"><![CDATA[<p>Go语言规范中规定了可寻址(addressable)对象的定义,</p>
 <blockquote>
 <p>For an operand x of type T, the address operation &amp;x generates a pointer of type *T to x. The operand must be addressable, that is, either a variable, pointer indirection, or slice indexing operation; or a field selector of an addressable struct operand; or an array indexing operation of an addressable array. As an exception to the addressability requirement, x may also be a (possibly parenthesized) composite literal. If the evaluation of x would cause a run-time panic, then the evaluation of &amp;x does too.</p>
@@ -1516,7 +1516,7 @@
     <link href="http://colobu.com/2018/02/24/Fixing-Bugs-in-Running-Java-Code-with-Dynamic-Attach/"/>
     <id>http://colobu.com/2018/02/24/Fixing-Bugs-in-Running-Java-Code-with-Dynamic-Attach/</id>
     <published>2018-02-24T11:00:24.000Z</published>
-    <updated>2018-02-24T11:20:37.459Z</updated>
+    <updated>2018-02-24T11:20:37.458Z</updated>
     <content type="html"><![CDATA[<p>原文: <a href="https://www.sitepoint.com/fixing-bugs-in-running-java-code-with-dynamic-attach/" target="_blank" rel="external">Fixing Bugs in Running Java Code with Dynamic Attach</a> by Rafael Winterhalter</p>
 <p><a href="https://www.oschina.net" target="_blank" rel="external">开源中国</a>组织翻译: <a href="http://www.oschina.net/translate/fixing-bugs-in-running-java-code-with-dynamic-attach" target="_blank" rel="external">在 Java 中运用动态挂载实现 Bug 的热修复</a> by TedCruz、<br>无若、LeoXu、Tocy等。</p>
 <p>大多数 JVM 具备 Java 的 <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jpda/enhancements1.4.html#hotswap" target="_blank" rel="external">HotSwap</a> 特性，大部分开发者认为它仅仅是一个调试工具。利用这一特性,有可能在不重启 Java 进程条件下，改变 Java 方法的实现。典型的例子是使用 IDE 来编码。然而 HotSwap 可以在生产环境中实现这一功能。通过这种方式，不用停止运行程序，就可以扩展在线的应用程序，或者在运行的项目上修复小的错误。这篇文章中，我将演示动态绑定、应用运行期代码变化进行绑定、介绍一些工具 API 以及 <a href="http://bytebuddy.net/" target="_blank" rel="external">Byte Buddy 库</a>，这个库提供了一些 API 代码改变更方便。</p>
