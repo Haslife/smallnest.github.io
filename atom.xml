@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://colobu.com/"/>
-  <updated>2018-08-13T11:47:31.303Z</updated>
+  <updated>2018-08-13T11:50:48.660Z</updated>
   <id>http://colobu.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://colobu.com/2018/08/13/create-minimal-docker-image-for-go-applications/"/>
     <id>http://colobu.com/2018/08/13/create-minimal-docker-image-for-go-applications/</id>
     <published>2018-08-13T10:30:10.000Z</published>
-    <updated>2018-08-13T11:47:14.432Z</updated>
+    <updated>2018-08-13T11:50:37.050Z</updated>
     <content type="html"><![CDATA[<p>虽然曾有一些文章介绍了如何创建一个最小的Go Docker镜像，我也曾写过一篇<a href="http://colobu.com/2015/10/12/create-minimal-golang-docker-images/" target="_blank" rel="external">文章</a>，但是随着Go的新的版本的发布， 以及docker本身的进化，有些技巧已经发生了变化， 本文介绍了最新的创建超小的Go镜像的方法。</p>
 <a id="more"></a>
 <h2 id="一个简单Go程序的镜像">一个简单Go程序的镜像</h2>
