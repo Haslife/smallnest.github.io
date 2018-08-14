@@ -196,6 +196,11 @@
 <li>编译是使用纯go的net: <code>go build -tags netgo -a -v</code></li>
 <li>使用基础镜像加glibc(或等价库musl、uclibc)， 比如 <a href="https://hub.docker.com/_/busybox/" target="_blank" rel="external">busybox:glibc</a>、alpine + <code>RUN apk add --no-cache libc6-compat</code>、<a href="https://hub.docker.com/r/frolvlad/alpine-glibc/" target="_blank" rel="external">frolvlad/alpine-glibc</a></li>
 </ul>
+<p>有的同学说了，我代码中确实必须使用CGO,因为需要依赖一些C/C++的库。目前没有对应的Go库可替代， 那么可以使用<code>-extldflags &quot;-static&quot;</code>,<code>go tool link help</code>介绍了<code>extldflags</code>的功能：</p>
+<blockquote>
+<p>-extldflags flags<br>   Set space-separated flags to pass to the external linker.</p>
+<p>   -static means do not link against shared libraries</p>
+</blockquote>
 <h2 id="基础镜像">基础镜像</h2>
 <p>其实前面已经列出了一些常用的基础镜像：</p>
 <ul>

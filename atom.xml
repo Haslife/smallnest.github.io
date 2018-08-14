@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://colobu.com/"/>
-  <updated>2018-08-13T11:50:48.660Z</updated>
+  <updated>2018-08-14T02:58:53.321Z</updated>
   <id>http://colobu.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="http://colobu.com/2018/08/13/create-minimal-docker-image-for-go-applications/"/>
     <id>http://colobu.com/2018/08/13/create-minimal-docker-image-for-go-applications/</id>
     <published>2018-08-13T10:30:10.000Z</published>
-    <updated>2018-08-13T11:50:37.050Z</updated>
+    <updated>2018-08-14T02:57:56.051Z</updated>
     <content type="html"><![CDATA[<p>虽然曾有一些文章介绍了如何创建一个最小的Go Docker镜像，我也曾写过一篇<a href="http://colobu.com/2015/10/12/create-minimal-golang-docker-images/" target="_blank" rel="external">文章</a>，但是随着Go的新的版本的发布， 以及docker本身的进化，有些技巧已经发生了变化， 本文介绍了最新的创建超小的Go镜像的方法。</p>
 <a id="more"></a>
 <h2 id="一个简单Go程序的镜像">一个简单Go程序的镜像</h2>
@@ -73,6 +73,11 @@
 <li>编译是使用纯go的net: <code>go build -tags netgo -a -v</code></li>
 <li>使用基础镜像加glibc(或等价库musl、uclibc)， 比如 <a href="https://hub.docker.com/_/busybox/" target="_blank" rel="external">busybox:glibc</a>、alpine + <code>RUN apk add --no-cache libc6-compat</code>、<a href="https://hub.docker.com/r/frolvlad/alpine-glibc/" target="_blank" rel="external">frolvlad/alpine-glibc</a></li>
 </ul>
+<p>有的同学说了，我代码中确实必须使用CGO,因为需要依赖一些C/C++的库。目前没有对应的Go库可替代， 那么可以使用<code>-extldflags &quot;-static&quot;</code>,<code>go tool link help</code>介绍了<code>extldflags</code>的功能：</p>
+<blockquote>
+<p>-extldflags flags<br>   Set space-separated flags to pass to the external linker.</p>
+<p>   -static means do not link against shared libraries</p>
+</blockquote>
 <h2 id="基础镜像">基础镜像</h2>
 <p>其实前面已经列出了一些常用的基础镜像：</p>
 <ul>
