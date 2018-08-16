@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://colobu.com/2018/08/16/locality-sensitive-hashing/</loc>
+    <lastmod>2018-08-16T11:56:14.950Z</lastmod>
+  </url>
+  
+  <url>
     <loc>http://colobu.com/2018/08/13/create-minimal-docker-image-for-go-applications/</loc>
     <lastmod>2018-08-14T02:57:56.051Z</lastmod>
   </url>
@@ -539,11 +544,6 @@
   <url>
     <loc>http://colobu.com/2014/12/16/zookeeper-recipes-by-example-summary/</loc>
     <lastmod>2016-12-06T07:54:21.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>http://colobu.com/2014/08/01/3-steps-to-create-a-disruptor-application/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
   <url>
@@ -1918,6 +1918,11 @@
   
   <url>
     <loc>http://colobu.com/2015/11/09/The-Stack-of-uriDB/</loc>
+    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://colobu.com/2014/08/01/3-steps-to-create-a-disruptor-application/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   

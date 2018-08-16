@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://colobu.com/"/>
-  <updated>2018-08-14T02:58:53.321Z</updated>
+  <updated>2018-08-16T11:56:37.193Z</updated>
   <id>http://colobu.com/</id>
   
   <author>
@@ -13,6 +13,90 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[局部敏感哈希介绍]]></title>
+    <link href="http://colobu.com/2018/08/16/locality-sensitive-hashing/"/>
+    <id>http://colobu.com/2018/08/16/locality-sensitive-hashing/</id>
+    <published>2018-08-16T09:19:25.000Z</published>
+    <updated>2018-08-16T11:56:14.950Z</updated>
+    <content type="html"><![CDATA[<p>传统的Hash当源数据有些许的变化的时候生成的哈希值差异也非常的大， 比如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> main() {</div><div class="line">	s1 := []<span class="typename">byte</span>(<span class="string">"你好世界"</span>)</div><div class="line">	s2 := []<span class="typename">byte</span>(<span class="string">"你好,世界"</span>)</div><div class="line"></div><div class="line">	hash1 := md5.Sum(s1)</div><div class="line">	hash2 := md5.Sum(s2)</div><div class="line"></div><div class="line">	fmt.Println(hex.EncodeToString(hash1[:]))</div><div class="line">	fmt.Println(hex.EncodeToString(hash2[:]))</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>s1的哈希值是<code>65396ee4aad0b4f17aacd1c6112ee364</code>、s2的哈希值是<code>27444ee2d245c3e8e11ed8b9b035c43b</code>,源数据仅仅是一个逗号的区别，但是哈希值完全不一样。这是我们使用Hash的常见的场景，输出的哈希值经常被称为消息摘要（message digest）或摘要（digest）。</p>
+<p>局部敏感哈希(Locality-sensitive hashing， 简称LSH)则不同， LSH则希望相似的源数据计算出来的哈希值越相近越好。<br>LSH经常用在判重、文章摘要、聚类、相似搜索、近邻查找等场景， 用来减少高维度的数据的维度，相近的数据放在同一个桶中。 比如<a href="https://cloud.tencent.com/developer/article/1035600" target="_blank" rel="external">大规模异常滥用检测：基于局部敏感哈希算法——来自Uber Engineering的实践</a></p>
+<a id="more"></a>
+<p>学术定义<a href="https://en.wikipedia.org/wiki/Locality-sensitive_hashing" target="_blank" rel="external">Locality sensitive hashing</a>总是不那么容易让人理解，本文也不试图从学术的角度去介绍LSH, 而是介绍一个特定的LSH算法：simhash。</p>
+<p>通用的LSH会基于某个点与点之间的某种<code>距离</code>判定相似性，相近的点距离接近，也就是说，我们可以通过计算距离来比较对象的相似性。距离之间的测量可以分为两大类：</p>
+<ul>
+<li>欧几里得距离(Euclidean): 基于空间中的点计算距离<ul>
+<li>普通的欧几里得距离</li>
+<li>曼哈顿距离(Manhattan distance)</li>
+<li>闵可夫斯基距离(Minkowski Distance)</li>
+</ul>
+</li>
+<li>非欧几里得距离: 不是根据空间中的位置，而是根据点的属性计算距离<ul>
+<li>杰卡德距离(Jaccard distance): 1-杰卡德相似系数</li>
+<li>余弦距离(Cosine distance)</li>
+<li>编辑距离(Edit distance)</li>
+<li>汉明距离(Hamming Distance)</li>
+</ul>
+</li>
+</ul>
+<p>当然还有一些距离的计算公式， 比如切比雪夫距离(Chebyshev Distance)、马氏距离(Mahalanobis distance)、Pearson距离等。<br>这些计算距离的方法会应用在不同的场景中，有时候也会使用不同的距离计算方法进行比较。</p>
+<p>不同的LSH会使用不同距离计算方法：</p>
+<ul>
+<li><a href="http://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarEstim.pdf" target="_blank" rel="external">HyperplaneLSH</a> 使用余弦距离</li>
+<li><a href="https://papers.nips.cc/paper/4847-super-bit-locality-sensitive-hashing.pdf" target="_blank" rel="external">Super-Bit Locality-Sensitive Hashing</a> 使用汉明距离</li>
+<li><a href="https://en.wikipedia.org/wiki/MinHash" target="_blank" rel="external">Min Hash</a> 使用杰卡德相似系数</li>
+<li><a href="http://www.cs.princeton.edu/courses/archive/spr04/cos598B/bib/BroderCFM-minwise.pdf" target="_blank" rel="external">Min-wise independent permutations</a></li>
+<li><a href="https://pdfs.semanticscholar.org/7a5f/dc6e9250428a636be20643191eaf9faa1434.pdf" target="_blank" rel="external">Nilsimsa Hash</a></li>
+<li><a href="http://www.ime.unicamp.br/~wanderson/Artigos/randon_projection_kdd.pdf" target="_blank" rel="external">Random projection</a></li>
+</ul>
+<p>simhash是Google的爬虫用来文档去重。 simhash最牛逼的一点就是将一个文档，最后转换成一个64位的字节，然后判断重复只需要判断他们的特征字的距离是不是小于n（根据经验这个n一般取值为3），就可以判断两个文档是否相似。这大大简化了文档相似性的比较。</p>
+<p>Simhash由<a href="https://en.wikipedia.org/wiki/Moses_Charikar" target="_blank" rel="external">Moses Charikar</a>, google 2006年做了minhash和simhash的大规模数据的比较，2007年Google说使用simhash用作<a href="http://static.googleusercontent.com/media/research.google.com/en//pubs/archive/33026.pdf" target="_blank" rel="external">爬虫去重</a>，使用minhash做<a href="https://doi.org/10.1145/1242572.1242610" target="_blank" rel="external">新闻个性化</a>。</p>
+<p><img src="simhash.jpg" alt=""></p>
+<p>simhash的计算也很简单，</p>
+<ol>
+<li>首先抽取文档的关键字， 比如前10个关键字，以及它们的权重(feature, weight), 记录为[(feature1, weight1), (feature1,weight2), ..., (featuren,weightn)]</li>
+<li>计算feature的hash值，记为[(hash(feature1), weight1), (hash(feature1),weight2), ..., (hash(featuren),weightn)], 如图，假设hash值的bit数为6位，图中第一个feature1的hash值为100110, 权重位weight1。</li>
+<li>然后对这些值按位进行累加，如果这个位是1,则该位上加上他的权重weight,如果是0，则减去weight，最后生成一个6个数字，每个位上一个数字，例如上图中位[13, 108, -22, -5, -32, 55]</li>
+<li>将数值转换成0,1即可 [13, 108, -22, -5, -32, 55] -&gt; 110001, 正值为1,负值为0即可</li>
+</ol>
+<p>这样，就可以将一个文档映射成一个数字了，上图中使用6bit,你可以选择合适的大小，比如64比特，可以转化成一个uint64整数。</p>
+<p>下一步就是根据simhash值计算两个文档的相似度，使用汉明距离计算，可以方便的使用xor操作。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="literal">A</span> = <span class="number">100111</span><span class="comment">;</span></div><div class="line">B = <span class="number">101010</span><span class="comment">;</span></div><div class="line">hamming_distance(<span class="literal">A</span>, B) = count_1(<span class="literal">A</span> xor B) = count_1(<span class="number">001101</span>) = <span class="number">3</span><span class="comment">;</span></div></pre></td></tr></table></figure>
+
+<p>这个例子中<code>A</code>和<code>B</code>的汉明距离为3。</p>
+<p>go标准库中已经有快速计算一个整数的二进制形式中包含1个数的函数：<a href="https://golang.org/pkg/math/bits/#OnesCount64" target="_blank" rel="external">bits.OnesCount64</a>， 使用 &lt;&lt;Hacker&#39;s Delight&gt;&gt;中介绍的算法。</p>
+<p>Go有几个simhash的实现， 比如<a href="https://github.com/mfonda/simhash" target="_blank" rel="external">mfonda/simhash</a>、<a href="https://github.com/AllenDang/simhash" target="_blank" rel="external">AllenDang/simhash</a>、<a href="https://github.com/fnargesian/simhash-lsh" target="_blank" rel="external">simhash-lsh</a>、<a href="https://github.com/safeie/simhash" target="_blank" rel="external">safeie/simhash</a>, 但是对于中文来说，还需要一个中文分词和抽取关键字的功能，这些库对中文不友好，中文文档的比较可以使用<a href="https://github.com/yanyiwu/gosimhash" target="_blank" rel="external">yanyiwu/gosimhash</a>以及修改版<a href="https://github.com/HaoyuHu/gosimhash" target="_blank" rel="external">HaoyuHu/gosimhash</a>。</p>
+<p>不过我最后计算相似性使用的是<a href="https://github.com/rfguri/bowsi" target="_blank" rel="external">bowsim</a> + <a href="github.com/yanyiwu/gojieba">jieba</a>。</p>
+<p>## </p>
+<ol>
+<li><a href="https://en.wikipedia.org/wiki/Locality-sensitive_hashing" target="_blank" rel="external">https://en.wikipedia.org/wiki/Locality-sensitive_hashing</a></li>
+<li><a href="http://web.mit.edu/andoni/www/LSH/" target="_blank" rel="external">http://web.mit.edu/andoni/www/LSH/</a></li>
+<li><a href="https://medium.com/engineering-brainly/locality-sensitive-hashing-explained-304eb39291e4" target="_blank" rel="external">https://medium.com/engineering-brainly/locality-sensitive-hashing-explained-304eb39291e4</a></li>
+<li><a href="https://towardsdatascience.com/understanding-locality-sensitive-hashing-49f6d1f6134" target="_blank" rel="external">https://towardsdatascience.com/understanding-locality-sensitive-hashing-49f6d1f6134</a></li>
+<li><a href="http://jacoxu.com/locality-sensitive-hashing归总/" target="_blank" rel="external">http://jacoxu.com/locality-sensitive-hashing归总/</a></li>
+<li><a href="http://infolab.stanford.edu/~ullman/mining/2009/similarity3.pdf" target="_blank" rel="external">http://infolab.stanford.edu/~ullman/mining/2009/similarity3.pdf</a></li>
+<li><a href="https://janzhou.org/lsh/" target="_blank" rel="external">https://janzhou.org/lsh/</a></li>
+<li><a href="http://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarEstim.pdf" target="_blank" rel="external">http://www.cs.princeton.edu/courses/archive/spring04/cos598B/bib/CharikarEstim.pdf</a></li>
+<li><a href="https://cloud.tencent.com/developer/article/1082465" target="_blank" rel="external">https://cloud.tencent.com/developer/article/1082465</a></li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>传统的Hash当源数据有些许的变化的时候生成的哈希值差异也非常的大， 比如：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> main() {</div><div class="line">	s1 := []<span class="typename">byte</span>(<span class="string">"你好世界"</span>)</div><div class="line">	s2 := []<span class="typename">byte</span>(<span class="string">"你好,世界"</span>)</div><div class="line"></div><div class="line">	hash1 := md5.Sum(s1)</div><div class="line">	hash2 := md5.Sum(s2)</div><div class="line"></div><div class="line">	fmt.Println(hex.EncodeToString(hash1[:]))</div><div class="line">	fmt.Println(hex.EncodeToString(hash2[:]))</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>s1的哈希值是<code>65396ee4aad0b4f17aacd1c6112ee364</code>、s2的哈希值是<code>27444ee2d245c3e8e11ed8b9b035c43b</code>,源数据仅仅是一个逗号的区别，但是哈希值完全不一样。这是我们使用Hash的常见的场景，输出的哈希值经常被称为消息摘要（message digest）或摘要（digest）。</p>
+<p>局部敏感哈希(Locality-sensitive hashing， 简称LSH)则不同， LSH则希望相似的源数据计算出来的哈希值越相近越好。<br>LSH经常用在判重、文章摘要、聚类、相似搜索、近邻查找等场景， 用来减少高维度的数据的维度，相近的数据放在同一个桶中。 比如<a href="https://cloud.tencent.com/developer/article/1035600" target="_blank" rel="external">大规模异常滥用检测：基于局部敏感哈希算法——来自Uber Engineering的实践</a></p>
+]]>
+    
+    </summary>
+    
+      <category term="算法" scheme="http://colobu.com/categories/%E7%AE%97%E6%B3%95/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[创建最小的Go docker 镜像]]></title>
@@ -1714,142 +1798,6 @@
 <p>虽然rpcx开发简单，但是作为开发人员来说，如果可以更加的偷懒， 那更是极好的一件事情了，这就是<a href="https://github.com/smallnest/rpcx/tree/master/tool/xgen" target="_blank" rel="external">xgen</a>开发的目的。</p>
 <p>这个工具可以搜寻指定的<code>package</code>下可以配置成rpcx服务的类型， 并且生成一个服务器程序，将这些服务注册到服务器程序中。你可以指定是否需要<code>zookeeper</code>、<code>etcd</code>、<code>consul</code>作为注册中心。</p>
 <p>这个工具的开发参考了Go的tools的实现以及DigitalOcean公司的Fatih Arslan<br>开发的<a href="https://github.com/fatih/gomodifytags" target="_blank" rel="external">gomodifytags</a>的实现。</p>
-]]>
-    
-    </summary>
-    
-      <category term="Go" scheme="http://colobu.com/categories/Go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[[转][译]只用200行Go代码写一个自己的区块链]]></title>
-    <link href="http://colobu.com/2018/02/05/code-your-own-blockchain-in-less-than-200-lines-of-go/"/>
-    <id>http://colobu.com/2018/02/05/code-your-own-blockchain-in-less-than-200-lines-of-go/</id>
-    <published>2018-02-05T05:23:12.000Z</published>
-    <updated>2018-02-05T06:17:19.229Z</updated>
-    <content type="html"><![CDATA[<p>这篇文章的原文为英文，出自 Coral Health公司: <a href="https://medium.com/@mycoralhealth/code-your-own-blockchain-in-less-than-200-lines-of-go-e296282bcffc" target="_blank" rel="external">Code your own blockchain in less than 200 lines of Go!</a>，</p>
-<p>本篇转载的译文来自魏佳翻译的: <a href="http://www.10tiao.com/html/175/201801/2653549361/1.html" target="_blank" rel="external">只用200行Go代码写一个自己的区块链！</a>,高可用架构的公众号， 开头部分我改为了原文的直接翻译。</p>
-<a id="more"></a>
-<p>这篇教程改编自<a href="https://medium.com/@lhartikk/a-blockchain-in-200-lines-of-code-963cc1cc0e54" target="_blank" rel="external">Javascript版本实现的区块链文章</a> (译文: <a href="https://mp.weixin.qq.com/s/Ghgaxt22Ob2p-Q7cuzKHNA" target="_blank" rel="external">200行代码就能写出区块链</a>)。我们使用Go语言实现了它，并且增加了一些额外的功能，比如可以在浏览器中查看区块链信息。如果对本教程有什么问题，欢迎加入 <a href="https://t.me/joinchat/FX6A7UThIZ1WOUNirDS_Ew" target="_blank" rel="external">Telegram chat</a>讨论。</p>
-<p>因为我们是一家从事医疗健康领域的科技公司，所以我们采用人类平静时的心跳数据（BPM心率）作为这篇文章中的示例数据。让我们先来统计一下你一分钟内的心跳数，然后记下来，这个数字可能会在接下来的内容中用到。</p>
-<p>几乎每个开发者都听说过区块链但是大部分人还是不清楚它是如何工作的。他们可能只是因为比特币才知道区块链，或许还知道一些智能合约的东东。这篇文章尝试帮助你使用Go编写你自己的简单的区块链。通过本教程，你可以编写和运行一个本地的区块链，并且可以在浏览器中查看它。</p>
-<p>通过本文，你将可以做到：</p>
-<ul>
-<li>创建自己的区块链</li>
-<li>理解 hash 函数是如何保持区块链的完整性</li>
-<li>如何创造并添加新的块</li>
-<li>多个节点如何竞争生成块</li>
-<li>通过浏览器来查看整个链</li>
-<li>所有其他关于区块链的基础知识</li>
-</ul>
-<p>但是，对于比如<strong>工作量证明算法（PoW）</strong> 以及 <strong>权益证明算法（PoS）</strong>这类的共识算法文章中将不会涉及。同时为了让你更清楚的查看区块链以及块的添加，我们将网络交互的过程简化了，关于 P2P 网络比如“全网广播”这个过程等内容将在下一篇文章中补上。</p>
-<h2 id="让我们开始吧！">让我们开始吧！</h2>
-<h3 id="设置">设置</h3>
-<p>我们假设你已经具备一点 Go 语言的开发经验。在安装和配置 Go 开发环境后之后，我们还要获取以下一些依赖：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/davecgh/go-spew/spew</div></pre></td></tr></table></figure>
-
-<p><code>spew</code> 可以帮助我们在 <code>console</code> 中直接查看 <code>struct</code> 和 <code>slice</code> 这两种数据结构。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/gorilla/mux</div></pre></td></tr></table></figure>
-
-<p><code>Gorilla</code> 的 mux 包非常流行， 我们用它来写 web handler。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go get github.com/joho/godotenv</div></pre></td></tr></table></figure>
-
-<p>godotenv 可以帮助我们读取项目根目录中的 <code>.env</code> 配置文件，这样我们就不用将 http port 之类的配置硬编码进代码中了。比如像这样：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">ADDR</span>=<span class="string">8080</span></div></pre></td></tr></table></figure>
-
-<p>接下来，我们创建一个 <code>main.go</code> 文件。之后我们的大部分工作都围绕这个文件，让我开始编码吧！</p>
-<h3 id="导入依赖">导入依赖</h3>
-<p>我们将所有的依赖包以声明的方式导入进去：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">    <span class="string">"crypto/sha256"</span></div><div class="line">    <span class="string">"encoding/hex"</span></div><div class="line">    <span class="string">"encoding/json"</span></div><div class="line">    <span class="string">"io"</span></div><div class="line">    <span class="string">"log"</span></div><div class="line">    <span class="string">"net/http"</span></div><div class="line">    <span class="string">"os"</span></div><div class="line">    <span class="string">"time"</span></div><div class="line"></div><div class="line">    <span class="string">"github.com/davecgh/go-spew/spew"</span></div><div class="line">    <span class="string">"github.com/gorilla/mux"</span></div><div class="line">    <span class="string">"github.com/joho/godotenv"</span></div><div class="line">)</div></pre></td></tr></table></figure>
-
-<h3 id="数据模型">数据模型</h3>
-<p>接着我们来定义一个结构体，它代表组成区块链的每一个块的数据模型：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> Block <span class="keyword">struct</span> {</div><div class="line">    Index     <span class="typename">int</span></div><div class="line">    Timestamp <span class="typename">string</span></div><div class="line">    BPM       <span class="typename">int</span></div><div class="line">    Hash      <span class="typename">string</span></div><div class="line">    PrevHash  <span class="typename">string</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<ul>
-<li><code>Index</code> 是这个块在整个链中的位置</li>
-<li><code>Timestamp</code> 显而易见就是块生成时的时间戳</li>
-<li><code>Hash</code> 是这个块通过 SHA256 算法生成的散列值</li>
-<li><code>PrevHash</code> 代表前一个块的 SHA256 散列值</li>
-<li><code>BPM</code> 每分钟心跳数，也就是心率。还记得文章开头说到的吗？</li>
-</ul>
-<p>接着，我们再定义一个结构表示整个链，最简单的表示形式就是一个 <code>Block</code> 的 slice：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">var</span> Blockchain []Block</div></pre></td></tr></table></figure>
-
-<p>我们使用散列算法（SHA256）来确定和维护链中块和块正确的顺序，确保每一个块的 PrevHash 值等于前一个块中的 Hash 值，这样就以正确的块顺序构建出链：</p>
-<p><img src="1.png" alt=""></p>
-<h3 id="散列和生成块">散列和生成块</h3>
-<p>我们为什么需要散列？主要是两个原因：</p>
-<ul>
-<li>在节省空间的前提下去唯一标识数据。散列是用整个块的数据计算得出，在我们的例子中，将整个块的数据通过 <code>SHA256</code> 计算成一个定长不可伪造的字符串。</li>
-<li>维持链的完整性。通过存储前一个块的散列值，我们就能够确保每个块在链中的正确顺序。任何对数据的篡改都将改变散列值，同时也就破坏了链。以我们从事的医疗健康领域为例，比如有一个恶意的第三方为了调整“人寿险”的价格，而修改了一个或若干个块中的代表不健康的 BPM 值，那么整个链都变得不可信了。</li>
-</ul>
-<p>我们接着写一个函数，用来计算给定的数据的 SHA256 散列值：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> calculateHash(block Block) <span class="typename">string</span> {</div><div class="line">    record := <span class="typename">string</span>(block.Index) + block.Timestamp + <span class="typename">string</span>(block.BPM) + block.PrevHash</div><div class="line">    h := sha256.New()</div><div class="line">    h.Write([]<span class="typename">byte</span>(record))</div><div class="line">    hashed := h.Sum(<span class="constant">nil</span>)</div><div class="line">    <span class="keyword">return</span> hex.EncodeToString(hashed)</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>这个 <code>calculateHash</code> 函数接受一个块，通过块中的 Index，Timestamp，BPM，以及 PrevHash 值来计算出 SHA256 散列值。接下来我们就能便携一个生成块的函数：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> generateBlock(oldBlock Block, BPM <span class="typename">int</span>) (Block, error) {</div><div class="line">    <span class="keyword">var</span> newBlock Block</div><div class="line"></div><div class="line">    t := time.Now()</div><div class="line">    newBlock.Index = oldBlock.Index +<span class="number"> 1</span></div><div class="line">    newBlock.Timestamp = t.String()</div><div class="line">    newBlock.BPM = BPM</div><div class="line">    newBlock.PrevHash = oldBlock.Hash</div><div class="line">    newBlock.Hash = calculateHash(newBlock)</div><div class="line"></div><div class="line">    <span class="keyword">return</span> newBlock, <span class="constant">nil</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>其中，<code>Index</code> 是从给定的前一块的 <code>Index</code> 递增得出，时间戳是直接通过 <code>time.Now()</code> 函数来获得的，<code>Hash</code> 值通过前面的 <code>calculateHash</code> 函数计算得出，<code>PrevHash</code> 则是给定的前一个块的 <code>Hash</code> 值。</p>
-<h3 id="校验块">校验块</h3>
-<p>搞定了块的生成，接下来我们需要有函数帮我们判断一个块是否有被篡改。检查 Index 来看这个块是否正确得递增，检查 PrevHash 与前一个块的 Hash 是否一致，再来通过 calculateHash 检查当前块的 Hash 值是否正确。通过这几步我们就能写出一个校验函数：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> isBlockValid(newBlock, oldBlock Block) <span class="typename">bool</span> {</div><div class="line">    <span class="keyword">if</span> oldBlock.Index<span class="number">+1</span> != newBlock.Index {</div><div class="line">        <span class="keyword">return</span> <span class="constant">false</span></div><div class="line">    }</div><div class="line">    <span class="keyword">if</span> oldBlock.Hash != newBlock.PrevHash {</div><div class="line">        <span class="keyword">return</span> <span class="constant">false</span></div><div class="line">    }</div><div class="line">    <span class="keyword">if</span> calculateHash(newBlock) != newBlock.Hash {</div><div class="line">        <span class="keyword">return</span> <span class="constant">false</span></div><div class="line">    }</div><div class="line">    <span class="keyword">return</span> <span class="constant">true</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>除了校验块以外，我们还会遇到一个问题：两个节点都生成块并添加到各自的链上，那我们应该以谁为准？这里的细节我们留到下一篇文章，这里先让我们记住一个原则：始终选择最长的链。</p>
-<p><img src="2.png" alt=""></p>
-<p>通常来说，更长的链表示它的数据（状态）是更新的，所以我们需要一个函数</p>
-<p>能帮我们将本地的过期的链切换成最新的链：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">func replaceChain(newBlocks []Block) {</div><div class="line">    <span class="keyword">if</span> len(newBlocks) &gt; len(Blockchain) {</div><div class="line">        Blockchain = newBlocks</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>到这一步，我们基本就把所有重要的函数完成了。接下来，我们需要一个方便直观的方式来查看我们的链，包括数据及状态。通过浏览器查看 web 页面可能是最合适的方式！</p>
-<h3 id="Web_服务">Web 服务</h3>
-<p>我猜你一定对传统的 web 服务及开发非常熟悉，所以这部分你肯定一看就会。<br>借助 Gorilla/mux 包，我们先写一个函数来初始化我们的 web 服务：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> run() error {</div><div class="line">    mux := makeMuxRouter()</div><div class="line">    httpAddr := os.Getenv(<span class="string">"ADDR"</span>)</div><div class="line">    log.Println(<span class="string">"Listening on "</span>, os.Getenv(<span class="string">"ADDR"</span>))</div><div class="line">    s := &http.Server{</div><div class="line">        Addr:           <span class="string">":"</span> + httpAddr,</div><div class="line">        Handler:        mux,</div><div class="line">        ReadTimeout:   <span class="number"> 10</span> * time.Second,</div><div class="line">        WriteTimeout:  <span class="number"> 10</span> * time.Second,</div><div class="line">        MaxHeaderBytes:<span class="number"> 1</span> &lt;&lt;<span class="number"> 20</span>,</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">if</span> err := s.ListenAndServe(); err != <span class="constant">nil</span> {</div><div class="line">        <span class="keyword">return</span> err</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">return</span> <span class="constant">nil</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>其中的端口号是通过前面提到的 .env 来获得，再添加一些基本的配置参数，这个 web 服务就已经可以 listen and serve 了！<br>接下来我们再来定义不同 endpoint 以及对应的 handler。例如，对“/”的 GET 请求我们可以查看整个链，“/”的 POST 请求可以创建块。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> makeMuxRouter() http.Handler {</div><div class="line">    muxRouter := mux.NewRouter()</div><div class="line">    muxRouter.HandleFunc(<span class="string">"/"</span>, handleGetBlockchain).Methods(<span class="string">"GET"</span>)</div><div class="line">    muxRouter.HandleFunc(<span class="string">"/"</span>, handleWriteBlock).Methods(<span class="string">"POST"</span>)</div><div class="line">    <span class="keyword">return</span> muxRouter</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>GET 请求的 handler：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> handleGetBlockchain(w http.ResponseWriter, r *http.Request) {</div><div class="line">    bytes, err := json.MarshalIndent(Blockchain, <span class="string">""</span>, <span class="string">"  "</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="constant">nil</span> {</div><div class="line">        http.Error(w, err.Error(), http.StatusInternalServerError)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    }</div><div class="line">    io.WriteString(w, <span class="typename">string</span>(bytes))</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>为了简化，我们直接以 JSON 格式返回整个链，你可以在浏览器中访问 localhost:8080 或者 127.0.0.1:8080 来查看（这里的8080就是你在 .env 中定义的端口号 ADDR）。</p>
-<p>POST 请求的 handler 稍微有些复杂，我们先来定义一下 POST 请求的 payload：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">type</span> Message <span class="keyword">struct</span> {</div><div class="line">    BPM <span class="typename">int</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>再看看 handler 的实现：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> handleWriteBlock(w http.ResponseWriter, r *http.Request) {</div><div class="line">    <span class="keyword">var</span> m Message</div><div class="line"></div><div class="line">    decoder := json.NewDecoder(r.Body)</div><div class="line">    <span class="keyword">if</span> err := decoder.Decode(&m); err != <span class="constant">nil</span> {</div><div class="line">        respondWithJSON(w, r, http.StatusBadRequest, r.Body)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    }</div><div class="line">    <span class="keyword">defer</span> r.Body.Close()</div><div class="line"></div><div class="line">    newBlock, err := generateBlock(Blockchain[<span class="built_in">len</span>(Blockchain<span class="number">)-1</span>], m.BPM)</div><div class="line">    <span class="keyword">if</span> err != <span class="constant">nil</span> {</div><div class="line">        respondWithJSON(w, r, http.StatusInternalServerError, m)</div><div class="line">        <span class="keyword">return</span></div><div class="line">    }</div><div class="line">    <span class="keyword">if</span> isBlockValid(newBlock, Blockchain[<span class="built_in">len</span>(Blockchain<span class="number">)-1</span>]) {</div><div class="line">        newBlockchain := <span class="built_in">append</span>(Blockchain, newBlock)</div><div class="line">        replaceChain(newBlockchain)</div><div class="line">        spew.Dump(Blockchain)</div><div class="line">    }</div><div class="line"></div><div class="line">    respondWithJSON(w, r, http.StatusCreated, newBlock)</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>我们的 POST 请求体中可以使用上面定义的 payload，比如：</p>
-<figure class="highlight json"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">{"<span class="attribute">BPM</span>":<span class="value"><span class="number">75</span></span>}</div></pre></td></tr></table></figure>
-
-<p>还记得前面我们写的 generateBlock 这个函数吗？它接受一个“前一个块”参数，和一个 BPM 值。POST handler 接受请求后就能获得请求体中的 BPM 值，接着借助生成块的函数以及校验块的函数就能生成一个新的块了！</p>
-<p>除此之外，你也可以：</p>
-<p>使用spew.Dump 这个函数可以以非常美观和方便阅读的方式将 struct、slice 等数据打印在控制台里，方便我们调试。</p>
-<p>测试 POST 请求时，可以使用 POSTMAN 这个 chrome 插件，相比 curl它更直观和方便。</p>
-<p>POST 请求处理完之后，无论创建块成功与否，我们需要返回客户端一个响应：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> respondWithJSON(w http.ResponseWriter, r *http.Request, code <span class="typename">int</span>, payload <span class="keyword">interface</span>{}) {</div><div class="line">    response, err := json.MarshalIndent(payload, <span class="string">""</span>, <span class="string">"  "</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="constant">nil</span> {</div><div class="line">        w.WriteHeader(http.StatusInternalServerError)</div><div class="line">        w.Write([]<span class="typename">byte</span>(<span class="string">"HTTP 500: Internal Server Error"</span>))</div><div class="line">        <span class="keyword">return</span></div><div class="line">    }</div><div class="line">    w.WriteHeader(code)</div><div class="line">    w.Write(response)</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<h3 id="快要大功告成了">快要大功告成了</h3>
-<p>接下来，我们把这些关于区块链的函数，web 服务的函数“组装”起来：</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">func</span> main() {</div><div class="line">    err := godotenv.Load()</div><div class="line">    <span class="keyword">if</span> err != <span class="constant">nil</span> {</div><div class="line">        log.Fatal(err)</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">go</span> <span class="keyword">func</span>() {</div><div class="line">        t := time.Now()</div><div class="line">        genesisBlock := Block<span class="number">{0</span>, t.String(),<span class="number"> 0</span>, <span class="string">""</span>, <span class="string">""</span>}</div><div class="line">        spew.Dump(genesisBlock)</div><div class="line">        Blockchain = <span class="built_in">append</span>(Blockchain, genesisBlock)</div><div class="line">    }()</div><div class="line">    log.Fatal(run())</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>这里的 <code>genesisBlock （创世块）</code>是 <code>main</code> 函数中最重要的部分，通过它来初始化区块链，毕竟第一个块的 <code>PrevHash</code> 是空的。</p>
-<h2 id="哦耶！完成了">哦耶！完成了</h2>
-<p>你们可以从这里获得完整的代码：<a href="https://github.com/mycoralhealth/blockchain-tutorial" target="_blank" rel="external">Github repo</a>。<br>让我们来启动它：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">go run main.go</div></pre></td></tr></table></figure>
-
-<p>在终端中，我们可以看到 web 服务器启动的日志信息，并且打印出了创世块的信息：<br><img src="3.png" alt=""></p>
-<p>接着我们打开浏览器，访问 localhost:8080 这个地址，我们可以看到页面中展示了当前整个区块链的信息（当然，目前只有一个创世块）：<br><img src="4.png" alt=""></p>
-<p>接着，我们再通过 POSTMAN 来发送一些 POST 请求：<br><img src="5.png" alt=""></p>
-<p>刷新刚才的页面，现在的链中多了一些块，正是我们刚才生成的，同时你们可以看到，块的顺序和散列值都正确。<br><img src="6.png" alt=""></p>
-<h3 id="下一步">下一步</h3>
-<p>刚刚我们完成了一个自己的区块链，虽然很简单（陋），但它具备块生成、散列计算、块校验等基本能力。接下来你就可以继续深入的学习区块链的其他重要知识，比如工作量证明、权益证明这样的共识算法，或者是智能合约、Dapp、侧链等等。</p>
-<p>目前这个实现中不包括任何 P2P 网络的内容，我们会在下一篇文章中补充这部分内容，当然，我们鼓励你在这个基础上自己实践一遍！</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>这篇文章的原文为英文，出自 Coral Health公司: <a href="https://medium.com/@mycoralhealth/code-your-own-blockchain-in-less-than-200-lines-of-go-e296282bcffc" target="_blank" rel="external">Code your own blockchain in less than 200 lines of Go!</a>，</p>
-<p>本篇转载的译文来自魏佳翻译的: <a href="http://www.10tiao.com/html/175/201801/2653549361/1.html" target="_blank" rel="external">只用200行Go代码写一个自己的区块链！</a>,高可用架构的公众号， 开头部分我改为了原文的直接翻译。</p>
 ]]>
     
     </summary>
