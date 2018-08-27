@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="http://colobu.com/"/>
-  <updated>2018-08-16T11:56:37.193Z</updated>
+  <updated>2018-08-27T11:54:48.014Z</updated>
   <id>http://colobu.com/</id>
   
   <author>
@@ -13,6 +13,58 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[跳出Go module的泥潭]]></title>
+    <link href="http://colobu.com/2018/08/27/learn-go-module/"/>
+    <id>http://colobu.com/2018/08/27/learn-go-module/</id>
+    <published>2018-08-27T11:11:34.000Z</published>
+    <updated>2018-08-27T11:54:21.617Z</updated>
+    <content type="html"><![CDATA[<p>Go 1.11 前天已经正式发布了，这个版本包含了两个最重要的feature就是 <code>module</code>和<code>web assembly</code>。虽然也有一些简单的教程介绍了<code>go module</code>的特性，但是基本上都是<code>hello world</code>的例子，在实践的过程中， 很多人都在“拼命的挣扎”，包括我自己， 从一些qq群、github的issue, twitter上都可以看到大家茫然或者抱怨的语句。</p>
+<p>虽然有三个帮助文件<code>go help mod</code>、<code>go help modules</code>、<code>go help module-get</code>可以了解一些go module的用法，但是感觉Go开发组对<code>module</code>这一特性还是没有很好的做一个全面的介绍，很多情况还得靠大家看源代码或者去猜，比如module下载的文件夹、版本格式的完整声明，<code>module</code>的最佳实践等，并且当前Go 1.11的实现中还有一些bug,给大家在使用的过程中带来了很大的困难。</p>
+<p>我也在摸索中前行， 记录了摸索过程中的一些总结，希望能给还在挣扎中的Gopher一些帮助。</p>
+<a id="more"></a>
+<h3 id="GO111MODULE">GO111MODULE</h3>
+<p>要使用<code>go module</code>,首先要设置<code>GO111MODULE=on</code>,这没什么可说的，如果没设置，执行命令的时候会有提示，这个大家应该都了解了。</p>
+<h3 id="既有项目">既有项目</h3>
+<p>假设你已经有了一个go 项目， 比如在<code>$GOPATH/github.com/smallnest/rpcx</code>下， 你可以使用<code>go mod init github.com/smallnest/rpcx</code>在这个文件夹下创建一个空的<code>go.mod</code> (只有第一行 <code>module github.com/smallnest/rpcx</code>)。</p>
+<p>然后你可以通过 <code>go get -m ./...</code>让它查找依赖，并记录在<code>go.mod</code>文件中(你还可以指定 <code>-tags</code>,这样可以把tags的依赖都查找到)。</p>
+<p>通过<code>go mod tidy</code>也可以用来为<code>go.mod</code>增加丢失的依赖，删除不需要的依赖，但是我不确定它怎么处理<code>tags</code>。</p>
+<p>执行上面的命令会把<code>go.mod</code>的<code>latest</code>版本换成实际的最新的版本，并且会生成一个<code>go.sum</code>记录每个依赖库的版本和哈希值。</p>
+<h3 id="新的项目">新的项目</h3>
+<p>你可以在<code>GOPATH</code>之外创建新的项目。</p>
+<p><code>go mod init packagename</code>可以创建一个空的<code>go.mod</code>,然后你可以在其中增加<code>require github.com/smallnest/rpcx latest</code>依赖，或者像上面一样让go自动发现和维护。</p>
+<p><code>go mod download</code>可以下载所需要的依赖，但是依赖并不是下载到<code>$GOPATH</code>中，而是<code>$GOPATH/pkg/mod</code>中，多个项目可以共享缓存的module。</p>
+<h3 id="go_mod命令">go mod命令</h3>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">download    download modules to local cache</div><div class="line">edit        edit go.mod from tools or scripts</div><div class="line">graph       print module requirement graph</div><div class="line">init        initialize new module <span class="keyword">in</span> current directory</div><div class="line">tidy        add missing and remove unused modules</div><div class="line">vendor      make vendored copy of dependencies</div><div class="line">verify      verify dependencies have expected content</div><div class="line">why         explain why packages or modules are needed</div></pre></td></tr></table></figure>
+
+<p>有些命令还有bug, 比如<code>go mod download -dir</code>:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">go mod download -dir /tmp</div><div class="line">flag provided but not defined: -dir</div><div class="line">usage: go mod download [-dir] [-json] [modules]</div><div class="line">Run <span class="string">'go help mod download'</span> <span class="keyword">for</span> details.</div></pre></td></tr></table></figure>
+
+<p>帮助里明明说可以设置<code>dir</code>,但是实际却不支持<code>dir</code>参数。</p>
+<p>看这些命令的帮助已经比较容易了解命令的功能。</p>
+<h3 id="翻墙">翻墙</h3>
+<p>在国内访问<code>golang.org/x</code>的各个包都需要翻墙，你可以在<code>go.mod</code>中使用<code>replace</code>替换成github上对应的库。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">replace (</div><div class="line">	golang.org<span class="regexp">/x/</span>crypto v0.<span class="number">0.0</span>-<span class="number">20180820150726</span>-<span class="number">614</span>d502a4dac =&gt; github.com<span class="regexp">/golang/</span>crypto v0.<span class="number">0.0</span>-<span class="number">20180820150726</span>-<span class="number">614</span>d502a4dac</div><div class="line">	golang.org<span class="regexp">/x/</span>net v0.<span class="number">0.0</span>-<span class="number">20180821023952</span>-<span class="number">922</span>f4815f713 =&gt; github.com<span class="regexp">/golang/</span>net v0.<span class="number">0.0</span>-<span class="number">20180826012351</span>-<span class="number">8</span>a410e7b638d</div><div class="line">	golang.org<span class="regexp">/x/</span>text v0.<span class="number">3.0</span> =&gt; github.com<span class="regexp">/golang/</span>text v0.<span class="number">3.0</span></div><div class="line">)</div></pre></td></tr></table></figure>
+
+<p>依赖库中的<code>replace</code>对你的主<code>go.mod</code>不起作用，比如<code>github.com/smallnest/rpcx</code>的<code>go.mod</code>已经增加了<code>replace</code>,但是你的<code>go.mod</code>虽然<code>require</code>了<code>rpcx</code>的库，但是没有设置<code>replace</code>的话， <code>go get</code>还是会访问<code>golang.org/x</code>。</p>
+<p>所以如果想编译那个项目，就在哪个项目中增加<code>replace</code>。</p>
+<h3 id="版本格式">版本格式</h3>
+<p>下面的版本都是合法的：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">gopkg.<span class="keyword">in</span>/tomb.v1 v1<span class="number">.0</span><span class="number">.0</span>-<span class="number">20141024135613</span>-dd632973f1e7</div><div class="line">gopkg.<span class="keyword">in</span>/vmihailenco/msgpack.v2 v2<span class="number">.9</span><span class="number">.1</span></div><div class="line">gopkg.<span class="keyword">in</span>/yaml.v2 &lt;=v2<span class="number">.2</span><span class="number">.1</span></div><div class="line">github.com/tatsushid/go-fastping v0<span class="number">.0</span><span class="number">.0</span>-<span class="number">20160109021039</span>-d7bb493dee3e</div><div class="line">latest</div></pre></td></tr></table></figure>
+
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>Go 1.11 前天已经正式发布了，这个版本包含了两个最重要的feature就是 <code>module</code>和<code>web assembly</code>。虽然也有一些简单的教程介绍了<code>go module</code>的特性，但是基本上都是<code>hello world</code>的例子，在实践的过程中， 很多人都在“拼命的挣扎”，包括我自己， 从一些qq群、github的issue, twitter上都可以看到大家茫然或者抱怨的语句。</p>
+<p>虽然有三个帮助文件<code>go help mod</code>、<code>go help modules</code>、<code>go help module-get</code>可以了解一些go module的用法，但是感觉Go开发组对<code>module</code>这一特性还是没有很好的做一个全面的介绍，很多情况还得靠大家看源代码或者去猜，比如module下载的文件夹、版本格式的完整声明，<code>module</code>的最佳实践等，并且当前Go 1.11的实现中还有一些bug,给大家在使用的过程中带来了很大的困难。</p>
+<p>我也在摸索中前行， 记录了摸索过程中的一些总结，希望能给还在挣扎中的Gopher一些帮助。</p>
+]]>
+    
+    </summary>
+    
+      <category term="Go" scheme="http://colobu.com/categories/Go/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[局部敏感哈希介绍]]></title>
@@ -1744,65 +1796,6 @@
     </summary>
     
       <category term="Java" scheme="http://colobu.com/categories/Java/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[10秒钟，让你的方法变为RPC服务]]></title>
-    <link href="http://colobu.com/2018/02/13/make-your-methods-as-services-in-10-seconds/"/>
-    <id>http://colobu.com/2018/02/13/make-your-methods-as-services-in-10-seconds/</id>
-    <published>2018-02-13T06:04:01.000Z</published>
-    <updated>2018-02-28T03:09:30.000Z</updated>
-    <content type="html"><![CDATA[<p><a href="https://github.com/smallnest/rpcx" target="_blank" rel="external"><img src="https://img.shields.io/github/stars/smallnest/rpcx.svg?style=social&amp;logo=github&amp;label=Stars" alt="GitHub stars"></a></p>
-<p><a href="https://github.com/smallnest/rpcx" target="_blank" rel="external">rpcx</a>一个服务治理的Go RPC框架， 拥有非常多的特性，支持跨语言的服务调用。 众多的特性可以参考<a href="https://doc.rpcx.site" target="_blank" rel="external">doc.rpcx.site</a>。它的服务治理的特性深受阿里巴巴的Dubbo框架的启发。</p>
-<p>在实际的产品应用中，用户使用两台服务器+8台日志搜集服务(Client)，轻松处理每天几十亿的服务调用， 除了中间一个路由器硬件闪断， 整个系统平稳运行多半年。 相比较之前Java的实现， 服务器节省了一半。 用户使用rpcx框架重构后的系统每月为公司节省了几十万元的成本。</p>
-<p>rpcx框架的一个设计哲学就是<strong>简单</strong>。不希望用户需要花费大量的时间在框架的学习上，并且不需要proto文件或者重复且冗余的服务配置。最少只需要10行代码就可以创建一个服务， 如果需要额外的配置，也只需要几十行的代码。</p>
-<p>虽然rpcx开发简单，但是作为开发人员来说，如果可以更加的偷懒， 那更是极好的一件事情了，这就是<a href="https://github.com/smallnest/rpcx/tree/master/tool/xgen" target="_blank" rel="external">xgen</a>开发的目的。</p>
-<p>这个工具可以搜寻指定的<code>package</code>下可以配置成rpcx服务的类型， 并且生成一个服务器程序，将这些服务注册到服务器程序中。你可以指定是否需要<code>zookeeper</code>、<code>etcd</code>、<code>consul</code>作为注册中心。</p>
-<p>这个工具的开发参考了Go的tools的实现以及DigitalOcean公司的Fatih Arslan<br>开发的<a href="https://github.com/fatih/gomodifytags" target="_blank" rel="external">gomodifytags</a>的实现。</p>
-<a id="more"></a>
-<p>首先看一下这个工具参数:</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">$ xgen -h</div><div class="line">Usage of xgen:</div><div class="line">  -o string</div><div class="line">    	specify the filename of the output</div><div class="line">  -pkg</div><div class="line">    	process the whole package instead of just the given file</div><div class="line">  -r string</div><div class="line">    	registry type. support etcd, consul, zookeeper, mdns</div><div class="line">  -tags string</div><div class="line">    	build tags to add to generated file</div></pre></td></tr></table></figure>
-
-<p>你可以使用 <code>xgen file1.go file2.go file3.go</code> 搜寻指定的文件生成服务，也可以 <code>xgen -pkg github.com/rpcx-ecosystem/rpcx-examples3/xgen</code> 为<code>GOPATH</code>中指定的<code>package</code>生成服务。 <code>-pkg</code>选项优先于程序参数。</p>
-<p><code>-o</code> 选项指定生成的程序输出到哪个文件，如果不指定，则输出到控制台<code>Stdout</code>。</p>
-<p><code>-r</code> 选项指定注册中心的类型，支持<code>zookeeper</code>、<code>etcd</code>、<code>consul</code> 和 <code>mdns</code>。如果不指定,则采用点对点的rpc调用方式。</p>
-<p><code>-tags</code> 选项指定生成的文件是否要加上<code>build conditions</code>。</p>
-<p>看一个例子， <a href="https://github.com/rpcx-ecosystem/rpcx-examples3/tree/master/xgen" target="_blank" rel="external">rpcx-examples3/xgen</a>中有一个server.go文件，它定义几个类型和方法。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> xgen</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"context"</span></div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line"></div><div class="line">	example <span class="string">"github.com/rpcx-ecosystem/rpcx-examples3"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">type</span> Arith <span class="typename">int</span></div><div class="line"></div><div class="line"><span class="keyword">func</span> (t *Arith) Mul(ctx context.Context, args example.Args, reply *example.Reply) error {</div><div class="line">	reply.C = args.A * args.B</div><div class="line">	<span class="keyword">return</span> <span class="constant">nil</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">func</span> (t *Arith) Add(ctx context.Context, args *example.Args, reply *example.Reply) error {</div><div class="line">	reply.C = args.A + args.B</div><div class="line">	<span class="keyword">return</span> <span class="constant">nil</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">type</span> Echo <span class="typename">string</span></div><div class="line"></div><div class="line"><span class="keyword">func</span> (s *Echo) Echo(ctx context.Context, args <span class="typename">string</span>, reply *<span class="typename">string</span>) error {</div><div class="line">	*reply = fmt.Sprintf(<span class="string">"Hello %s from %s"</span>, args, *reply)</div><div class="line">	<span class="keyword">return</span> <span class="constant">nil</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">type</span> TimeS <span class="keyword">struct</span>{}</div><div class="line"></div><div class="line"><span class="keyword">func</span> (s *TimeS) Time(ctx context.Context, args time.Time, reply *time.Time) error {</div><div class="line">	*reply = time.Now()</div><div class="line">	<span class="keyword">return</span> <span class="constant">nil</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>这三个类型<code>Arith</code>、<code>Echo</code>、<code>TimeS</code> 都有符合rpcx服务的方法。</p>
-<blockquote>
-<p>rpcx的服务的方法需要满足下面的规则:</p>
-<ul>
-<li>类型和参数都是exported</li>
-<li>方法有三个参数，并且第一个参数是<code>context.Context</code></li>
-<li>方法的第三个参数是指针类型</li>
-<li>方法类型为error</li>
-</ul>
-</blockquote>
-<p>现在你就可以使用<code>xgen</code>生成服务端代码。</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">xgen -o cmd/main.go -r <span class="string">"etcd"</span> -pkg github.com/rpcx-ecosystem/rpcx-examples3/xgen</div></pre></td></tr></table></figure>
-
-<p>或者</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">xgen -o cmd/main.go -r <span class="string">"etcd"</span> ./server.go</div></pre></td></tr></table></figure>
-
-<p>这样就生成了一个服务器端的代码。</p>
-<p>你可以运行你的服务器了: <code>go run -tags &quot;etcd&quot; cmd/main.go</code>,就这么简单。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p><a href="https://github.com/smallnest/rpcx" target="_blank" rel="external"><img src="https://img.shields.io/github/stars/smallnest/rpcx.svg?style=social&amp;logo=github&amp;label=Stars" alt="GitHub stars"></a></p>
-<p><a href="https://github.com/smallnest/rpcx" target="_blank" rel="external">rpcx</a>一个服务治理的Go RPC框架， 拥有非常多的特性，支持跨语言的服务调用。 众多的特性可以参考<a href="https://doc.rpcx.site" target="_blank" rel="external">doc.rpcx.site</a>。它的服务治理的特性深受阿里巴巴的Dubbo框架的启发。</p>
-<p>在实际的产品应用中，用户使用两台服务器+8台日志搜集服务(Client)，轻松处理每天几十亿的服务调用， 除了中间一个路由器硬件闪断， 整个系统平稳运行多半年。 相比较之前Java的实现， 服务器节省了一半。 用户使用rpcx框架重构后的系统每月为公司节省了几十万元的成本。</p>
-<p>rpcx框架的一个设计哲学就是<strong>简单</strong>。不希望用户需要花费大量的时间在框架的学习上，并且不需要proto文件或者重复且冗余的服务配置。最少只需要10行代码就可以创建一个服务， 如果需要额外的配置，也只需要几十行的代码。</p>
-<p>虽然rpcx开发简单，但是作为开发人员来说，如果可以更加的偷懒， 那更是极好的一件事情了，这就是<a href="https://github.com/smallnest/rpcx/tree/master/tool/xgen" target="_blank" rel="external">xgen</a>开发的目的。</p>
-<p>这个工具可以搜寻指定的<code>package</code>下可以配置成rpcx服务的类型， 并且生成一个服务器程序，将这些服务注册到服务器程序中。你可以指定是否需要<code>zookeeper</code>、<code>etcd</code>、<code>consul</code>作为注册中心。</p>
-<p>这个工具的开发参考了Go的tools的实现以及DigitalOcean公司的Fatih Arslan<br>开发的<a href="https://github.com/fatih/gomodifytags" target="_blank" rel="external">gomodifytags</a>的实现。</p>
-]]>
-    
-    </summary>
-    
-      <category term="Go" scheme="http://colobu.com/categories/Go/"/>
     
   </entry>
   
