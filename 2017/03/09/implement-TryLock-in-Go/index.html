@@ -9,7 +9,7 @@
 但是标准库中的Mutex.Lock的锁被获取后，如果在未释放之前再调用Lock则会被阻塞住，这种设计在有些情况下可能不能满足我的需求。有时候我们想尝试获取锁，如果获取到了，没问题继续执行，如果获取不">
 <meta property="og:type" content="article">
 <meta property="og:title" content="为 Go Mutex 实现 TryLock 方法">
-<meta property="og:url" content="http://colobu.com/2017/03/09/implement-TryLock-in-Go/">
+<meta property="og:url" content="https://colobu.com/2017/03/09/implement-TryLock-in-Go/">
 <meta property="og:site_name" content="鸟窝">
 <meta property="og:description" content="Go标准库的sync/Mutex、RWMutex实现了sync/Locker接口， 提供了Lock()和UnLock()方法，可以获取锁和释放锁，我们可以方便的使用它来控制我们对共享资源的并发控制上。
 但是标准库中的Mutex.Lock的锁被获取后，如果在未释放之前再调用Lock则会被阻塞住，这种设计在有些情况下可能不能满足我的需求。有时候我们想尝试获取锁，如果获取到了，没问题继续执行，如果获取不">
@@ -254,7 +254,7 @@
     owner: 'smallnest',
     repo: 'gitalk',
     title: '为 Go Mutex 实现 TryLock 方法',
-    body: 'http://colobu.com/2017/03/09/implement-TryLock-in-Go/',
+    body: 'https://colobu.com/2017/03/09/implement-TryLock-in-Go/',
     clientID: 'bc02724130ed5b7ee275',
     clientSecret: '68cb0bae2f93a8b88b09e0eb9b08c844b06a9047',
     admin: ['smallnest'],
