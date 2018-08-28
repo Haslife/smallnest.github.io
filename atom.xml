@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="https://colobu.com/"/>
-  <updated>2018-08-28T08:25:42.421Z</updated>
+  <updated>2018-08-28T08:30:07.857Z</updated>
   <id>https://colobu.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="https://colobu.com/2018/08/28/GCC-Options/"/>
     <id>https://colobu.com/2018/08/28/GCC-Options/</id>
     <published>2018-08-28T08:21:43.000Z</published>
-    <updated>2018-08-28T08:25:29.463Z</updated>
+    <updated>2018-08-28T08:29:43.522Z</updated>
     <content type="html"><![CDATA[<p>原文: <a href="https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html" target="_blank" rel="external">GCC Option Summary</a></p>
 <a id="more"></a>
 <!-- Copyright (C) 1988-2018 Free Software Foundation, Inc.
@@ -42,37 +42,6 @@ You have freedom to copy and modify this GNU Manual, like GNU
      software.  Copies published by the Free Software Foundation raise
      funds for GNU development. -->
 <!-- Created by GNU Texinfo 6.3, http://www.gnu.org/software/texinfo/ -->
-<style type="text/css">
-<!--
-a.summary-letter {text-decoration: none}
-blockquote.indentedblock {margin-right: 0em}
-blockquote.smallindentedblock {margin-right: 0em; font-size: smaller}
-blockquote.smallquotation {font-size: smaller}
-div.display {margin-left: 3.2em}
-div.example {margin-left: 3.2em}
-div.lisp {margin-left: 3.2em}
-div.smalldisplay {margin-left: 3.2em}
-div.smallexample {margin-left: 3.2em}
-div.smalllisp {margin-left: 3.2em}
-kbd {font-style: oblique}
-pre.display {font-family: inherit}
-pre.format {font-family: inherit}
-pre.menu-comment {font-family: serif}
-pre.menu-preformatted {font-family: serif}
-pre.smalldisplay {font-family: inherit; font-size: smaller}
-pre.smallexample {font-size: smaller}
-pre.smallformat {font-family: inherit; font-size: smaller}
-pre.smalllisp {font-size: smaller}
-span.nolinebreak {white-space: nowrap}
-span.roman {font-family: initial; font-weight: normal}
-span.sansserif {font-family: sans-serif; font-weight: normal}
-ul.no-bullet {list-style: none}
--->
-</style>
-
-<link rel="stylesheet" type="text/css" href="https://gcc.gnu.org/gcc.css">
-
-
 <h3 class="section">3.1 Option Summary</h3>
 
 <p></p><p>Here is a summary of all the options, grouped by type.  Explanations are<br>in the following sections.<br></p><p></p>
