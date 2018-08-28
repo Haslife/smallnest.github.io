@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://colobu.com/2018/08/28/GCC-Options/</loc>
+    <lastmod>2018-08-28T08:25:29.463Z</lastmod>
+  </url>
+  
+  <url>
     <loc>https://colobu.com/2018/08/27/learn-go-module/</loc>
     <lastmod>2018-08-28T07:30:39.550Z</lastmod>
   </url>
@@ -553,11 +558,6 @@
   
   <url>
     <loc>https://colobu.com/2016/10/12/go-file-operations/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://colobu.com/2014/08/11/Using-MongoDB-as-Quartz-Jobstore/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
@@ -1928,6 +1928,11 @@
   
   <url>
     <loc>https://colobu.com/2014/09/23/45-Useful-JavaScript-Tips,-Tricks-and-Best-Practices/</loc>
+    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://colobu.com/2014/08/11/Using-MongoDB-as-Quartz-Jobstore/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
