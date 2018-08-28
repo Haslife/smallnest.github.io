@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="https://colobu.com/"/>
-  <updated>2018-08-28T08:31:48.990Z</updated>
+  <updated>2018-08-28T10:36:07.021Z</updated>
   <id>https://colobu.com/</id>
   
   <author>
@@ -13,6 +13,161 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[[翻译]15个最常用的GCC编译器参数]]></title>
+    <link href="https://colobu.com/2018/08/28/15-Most-Frequently-Used-GCC-Compiler-Command-Line-Options/"/>
+    <id>https://colobu.com/2018/08/28/15-Most-Frequently-Used-GCC-Compiler-Command-Line-Options/</id>
+    <published>2018-08-28T08:50:24.000Z</published>
+    <updated>2018-08-28T10:35:39.734Z</updated>
+    <content type="html"><![CDATA[<p>原文: <a href="https://www.thegeekstuff.com/2012/10/gcc-compiler-options/" target="_blank" rel="external">15 Most Frequently Used GCC Compiler Command Line Options</a> 以及评论中大家提供的一些参数。</p>
+<p>GCC编译器是一个日常流行的 C 编译器， 很多Linux的发布版本中都带有这个编译器。这篇文章列举了一些最常用的编译参数。</p>
+<p>本文中使用下面的C语言实现的例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span>&lt;stdio.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">void</span>)</div><div class="line">{</div><div class="line">   <span class="built_in">printf</span>(<span class="string">"\n The Geek Stuff\n"</span>);</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<a id="more"></a>
+<h3 id="指定编译输出的名字">指定编译输出的名字</h3>
+<p>gcc编译器最常用的使用格式是:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gcc main.c</div></pre></td></tr></table></figure>
+
+<p>上面的命令执行完整的编译过程，并且生成一个<code>a.out</code>文件。</p>
+<p>使用参数<code>-o</code>, 可以指定输出的文件名。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gcc main.c -o main</div></pre></td></tr></table></figure>
+
+<p>上面的命令会产生输出文件<code>main</code>。</p>
+<p>为了理解GCC编译器的完整的编译过程，可以阅读 <a href="https://www.thegeekstuff.com/2011/10/c-program-to-an-executable/" target="_blank" rel="external">Journey of a C Program to Linux Executable in 4 Stages</a>。</p>
+<h3 id="通过-Wall参数启用所有警告">通过<code>-Wall</code>参数启用所有警告</h3>
+<p>这个参数可以启用所有警告。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span>&lt;stdio.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">void</span>)</div><div class="line">{</div><div class="line">   <span class="keyword">int</span> i;</div><div class="line">   <span class="built_in">printf</span>(<span class="string">"\n The Geek Stuff [%d]\n"</span>, i);</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>上面的代码编译时，会出现<code>未初始化的i</code>类似的警告。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ gcc -Wall main.c -o main</div><div class="line">main.c: <span class="keyword">In</span> <span class="function"><span class="keyword">function</span> ‘<span class="title">main</span>’:</span></div><div class="line">main.c:<span class="number">6</span>:<span class="number">10</span>: warning: ‘i’ <span class="keyword">is</span> used uninitialized <span class="keyword">in</span> this <span class="function"><span class="keyword">function</span> [-<span class="title">Wuninitialized</span>]</span></div></pre></td></tr></table></figure>
+
+<h3 id="使用-E参数只产生预处理输出">使用<code>-E</code>参数只产生预处理输出</h3>
+<p><code>-E</code>参数是产生预处理阶段的输出。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$ gcc -E main.c &gt; main.i</div></pre></td></tr></table></figure>
+
+<p>gcc命令将结果输出在<code>stdout</code>中，所以你可以把它重定向到任意的文件中，在上面的例子中，重定向到<code>main.i</code>文件中。</p>
+<h3 id="使用-S参数只产生汇编代码">使用<code>-S</code>参数只产生汇编代码</h3>
+<p><code>-S</code> 参数产生汇编级别的代码。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gcc -S main.c &gt; main.s</div></pre></td></tr></table></figure>
+
+<p>文件<code>main.s</code>包含汇编代码。</p>
+<h3 id="使用-C参数只产生编译的代码">使用<code>-C</code>参数只产生编译的代码</h3>
+<p><code>-C</code>参数只产生编译的代码(没有链接link)。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gcc -C main.c</div></pre></td></tr></table></figure>
+
+<p>上面的代码产生<code>main.o</code>, 包含机器级别的代码或者编译的代码。</p>
+<h3 id="使用-save-temps参数产生所有的中间步骤的文件">使用<code>-save-temps</code>参数产生所有的中间步骤的文件</h3>
+<p><code>-save-temps</code>可以做4,5,6步骤的工作。通过这个参数，所有中间阶段的文件都会存储在当前文件夹中，注意它也会产生可执行文件。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ gcc -save-temps main.c</div><div class="line"></div><div class="line">$ ls</div><div class="line">a.out  main.c  main.i  main.o  main.s</div></pre></td></tr></table></figure>
+
+<p>从例子中我们可以看到各个中间文件以及可执行文件。</p>
+<h3 id="使用-l参数链接共享库">使用<code>-l</code>参数链接共享库</h3>
+<p><code>-l</code>可以用作链接共享库，例如：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gcc  -Wall main.c -o main <span class="operator">-l</span>CPPfile</div></pre></td></tr></table></figure>
+
+<p>上面的代码会链接<code>libCPPfile.so</code>，产生可执行文件<code>main</code>。</p>
+<h3 id="使用-fPIC产生位置无关的代码">使用<code>-fPIC</code>产生位置无关的代码</h3>
+<p>当产生共享库的时候，应该创建位置无关的代码，这会让共享库使用任意的地址而不是固定的地址，要实现这个功能，需要使用<code>-fPIC</code>参数。</p>
+<p>下面的例子产生<code>libCfile.so</code>动态库。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>gcc -c -<span class="constant">Wall</span> -<span class="constant">Werror</span> -fPIC <span class="constant">Cfile</span>.c</div><div class="line"><span class="variable">$ </span>gcc -shared -o libCfile.so <span class="constant">Cfile</span>.o</div></pre></td></tr></table></figure>
+
+<p>产生共享库的时候使用了<code>-fPIC</code>参数。</p>
+<p>注意<code>-shared</code>产生共享库。</p>
+<h3 id="使用-V打印所有的执行命令">使用<code>-V</code>打印所有的执行命令</h3>
+<p>参数<code>-V</code>提供详细的信息，打印出gcc编译一个文件的时候所有的步骤。</p>
+<p>例如：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">$ gcc -Wall -v main.c -o main</div><div class="line">Using built-in specs.</div><div class="line">COLLECT_GCC=gcc</div><div class="line">COLLECT_LTO_WRAPPER=/usr/lib/gcc/i686-linux-gnu/<span class="number">4.6</span>/lto-wrapper</div><div class="line">Target: i686-linux-gnu</div><div class="line">Configured with: ../src/configure -v --with-pkgversion=<span class="string">'Ubuntu/Linaro 4.6.3-1ubuntu5'</span> --with-bugurl=file:///usr/share/doc/gcc-<span class="number">4.6</span>/README.Bugs --enable-languages=c,c++,fortran,objc,obj-c++ --prefix=/usr --program-suffix=-<span class="number">4.6</span> --enable-shared --enable-linker-build-id --with-system-zlib --libexecdir=/usr/lib --without-included-gettext --enable-threads=posix --with-gxx-include-dir=/usr/include/c++/<span class="number">4.6</span> --libdir=/usr/lib --enable-nls --with-sysroot=/ --enable-clocale=gnu --enable-libstdcxx-debug --enable-libstdcxx-time=yes --enable-gnu-unique-object --enable-plugin --enable-objc-gc --enable-targets=all --disable-werror --with-arch-<span class="number">32</span>=i686 --with-tune=generic --enable-checking=release --build=i686-linux-gnu --host=i686-linux-gnu --target=i686-linux-gnu</div><div class="line">Thread model: posix</div><div class="line">gcc version <span class="number">4.6</span>.<span class="number">3</span> (Ubuntu/Linaro <span class="number">4.6</span>.<span class="number">3</span>-<span class="number">1</span>ubuntu5)</div><div class="line">...</div><div class="line">...</div><div class="line">...</div></pre></td></tr></table></figure>
+
+<p>这样我们可以看到所有的细节。</p>
+<h3 id="使用-ansi参数支持_ISO_C89程序">使用<code>-ansi</code>参数支持 ISO C89程序</h3>
+<p>使用<code>-ansi</code>参数可以支持 ISO C89风格。</p>
+<p>比如下面的代码:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span>&lt;stdio.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">void</span>)</div><div class="line">{</div><div class="line">  <span class="comment">// Print the string</span></div><div class="line">   <span class="built_in">printf</span>(<span class="string">"\n The Geek Stuff\n"</span>);</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>使用<code>-ansi</code>参数编译上面的代码会出错，因为ISO C89不支持C++风格的注释。</p>
+<p>下面是输出结果:</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line"><span class="attribute">main.c</span>: <span class="string">In function ‘main’:</span></div><div class="line"><span class="attribute">main.c:5:3</span>: <span class="string">error: expected expression before ‘/’ token</span></div></pre></td></tr></table></figure>
+
+<p>我们可以看待上面编译的时候抛出一个注释错误。</p>
+<h3 id="使用-funsigned-char将char解释为符号的char">使用<code>-funsigned-char</code>将char解释为符号的char</h3>
+<p>通过这个参数， char类型被看作为 unsigned char类型。</p>
+<p>例子:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span>&lt;stdio.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">void</span>)</div><div class="line">{</div><div class="line">  <span class="keyword">char</span> c = -<span class="number">10</span>;</div><div class="line">  <span class="comment">// Print the string</span></div><div class="line">   <span class="built_in">printf</span>(<span class="string">"\n The Geek Stuff [%d]\n"</span>, c);</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>上面的代码通过这个参数编译后，输出结果为：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ gcc -Wall -funsigned-char main.c -o main</div><div class="line">$ ./main</div><div class="line"></div><div class="line"> The Geek Stuff [<span class="number">246</span>]</div></pre></td></tr></table></figure>
+
+<p>可以看到char是无符号的字节。</p>
+<h3 id="使用-fsigned-char将char解释为有符号的char">使用<code>-fsigned-char</code>将char解释为有符号的char</h3>
+<p>和上面的功能相反， 使用这个参数， char类型被看作是有符号的：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>gcc -<span class="constant">Wall</span> -fsigned-char main.c -o main</div><div class="line"><span class="variable">$ </span>./main</div><div class="line"></div><div class="line"> <span class="constant">The</span> <span class="constant">Geek</span> <span class="constant">Stuff</span> [-<span class="number">10</span>]</div></pre></td></tr></table></figure>
+
+<p>结果输出为负数。</p>
+<h3 id="使用-D参数可以使用编译时的宏">使用<code>-D</code>参数可以使用编译时的宏</h3>
+<p>参数<code>D</code>可以用作定义编译时的宏。</p>
+<p>例子:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span>&lt;stdio.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">void</span>)</div><div class="line">{</div><div class="line"><span class="preprocessor">#ifdef MY_MACRO</span></div><div class="line">  <span class="built_in">printf</span>(<span class="string">"\n Macro defined \n"</span>);</div><div class="line"><span class="preprocessor">#<span class="keyword">endif</span></span></div><div class="line">  <span class="keyword">char</span> c = -<span class="number">10</span>;</div><div class="line">  <span class="comment">// Print the string</span></div><div class="line">   <span class="built_in">printf</span>(<span class="string">"\n The Geek Stuff [%d]\n"</span>, c);</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p><code>-D</code>可以用作从命令行定义宏<code>MY_MACRO</code>。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ gcc -Wall -DMY_MACRO main.c -o main</div><div class="line">$ ./main</div><div class="line"></div><div class="line"> Macro defined </div><div class="line"></div><div class="line"> The Geek Stuff [-<span class="number">10</span>]</div></pre></td></tr></table></figure>
+
+<p>可以看到宏被定义了，并打印出了结果。<br>tput confirms that the macro was defined.</p>
+<h3 id="使用-Werror将警告升级为错误">使用<code>-Werror</code>将警告升级为错误</h3>
+<p>通过这个参数，gcc会将所有的警告转换成错误信息。<br>例子:</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span>&lt;stdio.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">void</span>)</div><div class="line">{</div><div class="line">  <span class="keyword">char</span> c;</div><div class="line">  <span class="comment">// Print the string</span></div><div class="line">   <span class="built_in">printf</span>(<span class="string">"\n The Geek Stuff [%d]\n"</span>, c);</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>上面的代码编译的时候会有一个<code>undefined variable c</code>警告， <code>-Werror</code>会把这个警告升级成错误。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ gcc -Wall -Werror main.c -o main</div><div class="line">main.c: <span class="keyword">In</span> <span class="function"><span class="keyword">function</span> ‘<span class="title">main</span>’:</span></div><div class="line">main.c:<span class="number">7</span>:<span class="number">10</span>: error: ‘c’ <span class="keyword">is</span> used uninitialized <span class="keyword">in</span> this <span class="function"><span class="keyword">function</span> [-<span class="title">Werror</span>=<span class="title">uninitialized</span>]</span></div><div class="line"><span class="title">cc1</span>: all warnings being treated <span class="keyword">as</span> errors</div></pre></td></tr></table></figure>
+
+<h3 id="使用@参数从文件中读取参数">使用<code>@</code>参数从文件中读取参数</h3>
+<p>gcc参数可以从文件中读取，通过<code>@</code>后跟文件名的方式提供， 多个参数可以使用空格区隔。</p>
+<p>例子:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ cat opt_file </div><div class="line">-Wall -omain</div></pre></td></tr></table></figure>
+
+<p><code>opt_file</code>包含编译参数。</p>
+<p>使用<code>@</code>参数：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">$ gcc main.c @opt_file</div><div class="line">main.c: In function ‘main’:</div><div class="line">main.c:<span class="number">6</span>:<span class="number">11</span>: warning: ‘i’ is used uninitialized <span class="keyword">in</span> this function [-Wuninitialized]</div><div class="line"></div><div class="line">$ ls main</div><div class="line">main</div></pre></td></tr></table></figure>
+
+<p>输出结果表明参数的确从文件中读取了，并且正确的应用到编译过程中。</p>
+<blockquote>
+<p>以下是附加的一些编译参数</p>
+</blockquote>
+<h3 id="使用参数-I指定头文件的文件夹">使用参数<code>-I</code>指定头文件的文件夹</h3>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gcc -I/home/codeman/include input-file.c</div></pre></td></tr></table></figure>
+
+<p><code>-I-</code>取消前一个参数功能，一般用在<code>-Idir</code>之后。</p>
+<h3 id="使用参数-std指定支持的c++/c的标准">使用参数<code>-std</code>指定支持的c++/c的标准</h3>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gcc -std=c++<span class="number">11</span> hello-world.cpp</div></pre></td></tr></table></figure>
+
+<p>标准如 <code>c++11, c++14, c90, c89</code>等。</p>
+<h3 id="使用-static生成静态链接的文件">使用<code>-static</code>生成静态链接的文件</h3>
+<p>静态编译文件(把动态库的函数和其它依赖都编译进最终文件)</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">gcc main.c -static -o main -lpthread</div></pre></td></tr></table></figure>
+
+<p>相反的使用<code>-shared</code>使用动态库链接。</p>
+<h3 id="使用-static-libstdc++静态链接libstdc++">使用<code>-static-libstdc++</code>静态链接libstdc++</h3>
+<p>如果没有使用<code>-static</code>,默认使用libstdc++共享库，而<code>-static-libstdc++</code>可以指定使用libstdc++静态库。</p>
+<h3 id="使用-M生成文件关联的信息">使用<code>-M</code>生成文件关联的信息</h3>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">gcc -M main.c</div><div class="line">main.o: main.c /usr/include/stdc-predef.h /usr/include/stdio.h \</div><div class="line"> /usr/include/features.h /usr/include/sys/cdefs.h \</div><div class="line"> /usr/include/bits/wordsize.h /usr/include/gnu/stubs.h \</div><div class="line"> /usr/include/gnu/stubs-<span class="number">64</span>.h \</div><div class="line"> /usr/lib/gcc/x86_64-redhat-linux/<span class="number">4.8</span>.<span class="number">5</span>/include/stddef.h \</div><div class="line"> /usr/include/bits/types.h /usr/include/bits/typesizes.h \</div><div class="line"> /usr/include/libio.h /usr/include/_G_config.h /usr/include/wchar.h \</div><div class="line"> /usr/lib/gcc/x86_64-redhat-linux/<span class="number">4.8</span>.<span class="number">5</span>/include/stdarg.h \</div><div class="line"> /usr/include/bits/stdio_lim.h /usr/include/bits/sys_errlist.h</div></pre></td></tr></table></figure>
+
+<h3 id="全部参数介绍">全部参数介绍</h3>
+<p><a href="https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html" target="_blank" rel="external">https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html</a></p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>原文: <a href="https://www.thegeekstuff.com/2012/10/gcc-compiler-options/" target="_blank" rel="external">15 Most Frequently Used GCC Compiler Command Line Options</a> 以及评论中大家提供的一些参数。</p>
+<p>GCC编译器是一个日常流行的 C 编译器， 很多Linux的发布版本中都带有这个编译器。这篇文章列举了一些最常用的编译参数。</p>
+<p>本文中使用下面的C语言实现的例子：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span>&lt;stdio.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> main(<span class="keyword">void</span>)</div><div class="line">{</div><div class="line">   <span class="built_in">printf</span>(<span class="string">"\n The Geek Stuff\n"</span>);</div><div class="line">   <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+]]>
+    
+    </summary>
+    
+      <category term="C++" scheme="https://colobu.com/categories/C/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[跳出Go module的泥潭]]></title>
@@ -1735,75 +1890,6 @@
     </summary>
     
       <category term="Go" scheme="https://colobu.com/categories/Go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[[转][译]在 Java 中运用动态挂载实现 Bug 的热修复]]></title>
-    <link href="https://colobu.com/2018/02/24/Fixing-Bugs-in-Running-Java-Code-with-Dynamic-Attach/"/>
-    <id>https://colobu.com/2018/02/24/Fixing-Bugs-in-Running-Java-Code-with-Dynamic-Attach/</id>
-    <published>2018-02-24T11:00:24.000Z</published>
-    <updated>2018-02-24T11:20:37.458Z</updated>
-    <content type="html"><![CDATA[<p>原文: <a href="https://www.sitepoint.com/fixing-bugs-in-running-java-code-with-dynamic-attach/" target="_blank" rel="external">Fixing Bugs in Running Java Code with Dynamic Attach</a> by Rafael Winterhalter</p>
-<p><a href="https://www.oschina.net" target="_blank" rel="external">开源中国</a>组织翻译: <a href="http://www.oschina.net/translate/fixing-bugs-in-running-java-code-with-dynamic-attach" target="_blank" rel="external">在 Java 中运用动态挂载实现 Bug 的热修复</a> by TedCruz、<br>无若、LeoXu、Tocy等。</p>
-<p>大多数 JVM 具备 Java 的 <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jpda/enhancements1.4.html#hotswap" target="_blank" rel="external">HotSwap</a> 特性，大部分开发者认为它仅仅是一个调试工具。利用这一特性,有可能在不重启 Java 进程条件下，改变 Java 方法的实现。典型的例子是使用 IDE 来编码。然而 HotSwap 可以在生产环境中实现这一功能。通过这种方式，不用停止运行程序，就可以扩展在线的应用程序，或者在运行的项目上修复小的错误。这篇文章中，我将演示动态绑定、应用运行期代码变化进行绑定、介绍一些工具 API 以及 <a href="http://bytebuddy.net/" target="_blank" rel="external">Byte Buddy 库</a>，这个库提供了一些 API 代码改变更方便。</p>
-<a id="more"></a>
-<p>假设有一个正在运行的应用程序，通过校验 HTTP 请求中的 <code>X-Priority</code> 头部，来执行服务器的特殊处理。该校验使用下面的工具类来实现:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">class HeaderUtility {</div><div class="line"></div><div class="line">    <span class="keyword">static</span> <span class="keyword">boolean</span> isPriorityCall(HttpServletRequest request) {</div><div class="line">        <span class="keyword">return</span> request.getHeader(<span class="string">"X-Pirority"</span>) != <span class="keyword">null</span>;</div><div class="line">    }</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>你发现拼写错误了吗 (<code>Pirority</code>)？这样的错误很常见，尤其是在测试代码中常量值分解为静态字段重用。在不太理想的情况下，这个错误只会在产品被安装的时候才被发现，其中头通过另外一个应用生成并没有拼写错误。</p>
-<p>修复这样的错误并不难。在持续交付的时代，重新部署一个新的版本只需要点击一下按钮。但在其他情况下，变更可能就不是那么简单了，重新部署过程可能比较复杂，其中停机是不允许的，带着错误运行可能会比较好。但 HotSwap 给我们提供了另外一种选择：在不重启应用的前提下进行小幅改动。</p>
-<h2 id="Attach_API：使用动态附件来渗透另外一个_JVM">Attach API：使用动态附件来渗透另外一个 JVM</h2>
-<p>为了修改一个运行中的 Java 程序，我们首先需要一种可以同处在运行状态的 JVM 进行通信的方式。因为 Java 的虚拟机实现是一个受到管理的系统，因此拥有进行这些操作的标准 API。提问中涉及到的 API 被称作 attachment API，它是官方 Java 工具的一部分。使用这个由运行之中的 JVM 所暴露的 API，能让第二个 Java 进程来同其进行通信。</p>
-<p>事实上，我们已经用到了该 API: 它已经由诸如 <a href="https://github.com/visualvm" target="_blank" rel="external">VisualVM</a> 或者 <a href="http://www.oracle.com/technetwork/java/javaseproducts/mission-control/java-mission-control-1998576.html" target="_blank" rel="external">Java Mission Control</a> 这样的调试和模拟工具进行了应用。应用这些附件的 API 并没有同日常使用的标准 Java API 打包在一起，而是被打包到了一个特殊的文件之中，叫做 tools.jar，它只包含了一个虚拟机的 JDK 打包发布版本。更糟糕的是，这个 JAR 文件的位置并没有进行设置，它在 Windows、Linux，特别是在 Macintosh 上的 VM 都存在差别，不光文件的位置，连文件名也各异，有些发行版上就被叫做 classes.jar。最后，IBM 甚至决定对这个 JAR 中包含的一些类的名称进行修改，将所有 com.sun 类挪到 com.ibm 命名空间之中, 又添了一个乱子。在 Java 9 中，乱糟糟的状态才最终得以清理，tools.jar 被 <a href="http://download.java.net/java/jigsaw/docs/jdk/api/attach/spec/jdk.attach-summary.html" target="_blank" rel="external">Jigsaw 的模块 jdk.attach</a> 所替代。</p>
-<p><img src="dynamic-attach.png" alt=""></p>
-<p>在对 API 的 JAR (或者模块) 进行了定位之后，我们就该让其对附件进程可用。在 OpenJDK 上，被用来连接到另外一个 JVM 的类叫做 <code>VirtualMachine</code>，它向任何由位于同一台物理机器上的 JDK 或者是一个普通的 HtpSpot JVM 所运行的 VM 提供了一个入口点。在通过进程 id 附加到另外一台虚拟机上之后，我们就能够在目标 VM 指定的一个线程中运行一个 JAR 文件：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// the following strings must be provided by us</span></div><div class="line">String processId = processId();</div><div class="line">String jarFileName = jarFileName();</div><div class="line">VirtualMachine virtualMachine = VirtualMachine.attach(processId);</div><div class="line"><span class="keyword">try</span> {</div><div class="line">    virtualMachine.loadAgent(jarFileName, <span class="string">"World!"</span>);</div><div class="line">} <span class="keyword">finally</span> {</div><div class="line">    virtualMachine.detach();</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>在收到一个 JAR 文件之后，目标虚拟机会查看该 JAR 的程序清单描述文件（manifest），并定位处在 <code>Premain-Class</code> 属性之下的类。这非常类似于 VM 执行一个<code>main</code>方法的方式。有了一个 Java 代理，VM 和指定的进程 id 就可以查找到一个名为 <code>agentmain</code> 的方法，该方法可以由指定线程中的远程进程来执行:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorldAgent</span> </span>{</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">agentmain</span>(String arg) {</div><div class="line">        System.out.println(<span class="string">"Hello, "</span> + arg);</div><div class="line">    }</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>使用该 API，只要我们知道一个 JVM 的进程 id，就可以来在其上运行代码，打印出一条 <code>Hello, World!</code> 消息。甚至有可能同并不熟 JDK 发行版一部分的 JVM 进行通信，只要附加的 VM 是一个用来访问 tools.jar 的 JDK 安装程序。</p>
-<h2 id="Instrumentation_API：修改目标_VM_的程序">Instrumentation API：修改目标 VM 的程序</h2>
-<p>到目前来看一切顺利。但是除了成功地同目标 VM 建立起了通信之外，我们还不能够修改目标 VM 上的代码以及 BUG。后续的修改，Java 代理可以定义第二参数来接收一个 <code>Instrumentation</code> 的实例 。稍后要实现的接口提供了向几个底层方法的访问途径，它们中的一个就能够对已经加载的代码进行修改。</p>
-<p>为了修正 &quot;X-Pirority&quot; 错字，我们首先来假设为 <code>HeaderUtility</code> 引入了一个修复类，叫做 <code>typo.fix</code>，就在我们下面所开发的 <code>BugFixAgent</code> 后面的代理的 JAR 文件中。此外，我们需要给予代理通过向 manifest 文件添加 <code>Can-Redefine-Classes: true</code> 来替换现有类的能力。有了现在这些东西，我们就可以使用 instrumentation 的 API 来对类进行重新定义，该 API 会接受一对已经加载的类以及用来执行类重定义的字节数组：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BugFixAgent</span> </span>{</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">agentmain</span>(String arg, Instrumentation inst)</div><div class="line">            <span class="keyword">throws</span> Exception {</div><div class="line">        <span class="comment">// only if header utility is on the class path; otherwise,</span></div><div class="line">        <span class="comment">// a class can be found within any class loader by iterating</span></div><div class="line">        <span class="comment">// over the return value of Instrumentation::getAllLoadedClasses</span></div><div class="line">        Class&lt;?&gt; headerUtility = Class.forName(<span class="string">"HeaderUtility"</span>);</div><div class="line"></div><div class="line">        <span class="comment">// copy the contents of typo.fix into a byte array</span></div><div class="line">        ByteArrayOutputStream output = <span class="keyword">new</span> ByteArrayOutputStream();</div><div class="line">        <span class="keyword">try</span> (InputStream input =</div><div class="line">                BugFixAgent.class.getResourceAsStream(<span class="string">"/typo.fix"</span>)) {</div><div class="line">            <span class="keyword">byte</span>[] buffer = <span class="keyword">new</span> <span class="keyword">byte</span>[<span class="number">1024</span>];</div><div class="line">            <span class="keyword">int</span> length;</div><div class="line">            <span class="keyword">while</span> ((length = input.read(buffer)) != -<span class="number">1</span>) {</div><div class="line">                output.write(buffer, <span class="number">0</span>, length);</div><div class="line">            }</div><div class="line">        }</div><div class="line"></div><div class="line">        <span class="comment">// Apply the redefinition</span></div><div class="line">        instrumentation.redefineClasses(</div><div class="line">                <span class="keyword">new</span> ClassDefinition(headerUtility, output.toByteArray()));</div><div class="line">    }</div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>运行上述代码后，HeaderUtility 类会被重定义以对应其修补的版本。对 isPrivileged 的任何后续调用现在将读取正确的头信息。作为一个小的附加说明，JVM 可能会在应用类重定义时执行完全的垃圾回收，并且会对受影响的代码进行重新优化。 总之，这会导致应用程序性能的短时下降。然而，在大多数情况下，这是较之完全重启进程更好的方式。</p>
-<p>当应用代码更改时，要确保新类定义了与它替换的类完全相同的字段、方法和修饰符。 尝试修改任何此类属性的类重定义行为都会导致 <code>UnsupportedOperationException</code>。现在 HotSpot 团队正<a href="http://openjdk.java.net/jeps/159" target="_blank" rel="external">试图去掉这个限制</a>。此外，基于 OpenJDK 的<a href="https://java.net/projects/dcevm" target="_blank" rel="external">动态代码演变虚拟机</a>支持预览此功能。</p>
-<h2 id="使用_Byte_Buddy_来追踪内存泄漏">使用 Byte Buddy 来追踪内存泄漏</h2>
-<p>一个如上述示例的简单的 BUG 修复代理在你熟悉了 instrumentation 的 API 的时候是比较容易实现的。只要更加深入一点，也可以在运行代理的时候，无需手动创建附加的 class 文件，而是通过重写现有的 class 来应用更多通用的代码修改。</p>
-<h3 id="字节码操作">字节码操作</h3>
-<p>编译好的 Java 代码所呈现的是一系列字节码指令。从这个角度来看，一个 Java 方法无非就是一个字节数组，其每一个字节都是在表示一个向运行时发出的指令，或者是最近一个指令的参数。每个字节对应其意义的映射在 <a href="https://docs.oracle.com/javase/specs/jvms/se8/html/" target="_blank" rel="external">《Java 虚拟机规范》</a> 中进行了定义，例如字节 <code>0xB1</code> 就是在指示 VM 从一个带有 void 返回类型的方法返回。因此，对字节码进行增强就是对一个方法的字节数字进行扩展，将我们想要应用的表示额外的业务逻辑指令包含进去。</p>
-<p>当然，逐个字节的操作会特别麻烦，而且容易出错。为了避免手工的处理，许多的库都提供了更高级一点的 API，使用它们不需要我们直接同 Java 字节码打交道。这样的库其中就有一个叫做 <a href="https://github.com/raphw/byte-buddy" target="_blank" rel="external">Byte Buddy</a> (当然我就是该库的作者)。它的功能之一就是能够定义可以在方法原来的代码之前和之后被执行的模板方法。</p>
-<h3 id="分析一个发生泄漏的应用程序">分析一个发生泄漏的应用程序</h3>
-<p>这里的示例假定一个应用程序在生产环境运行了几周之后，被发现发生了泄漏资源的现象。像这样的 BUG 很难去跟踪，因为在一个可观察的测试环境中重现这样一个类似的问题状态比较困难。因此，（目前）要排除这样的问题除了重新启动崩溃的应用程序之外，我们还可以在当前线程中修改应用程序的代码来对泄漏进行跟踪。为了找出哪里才是应用程序泄漏句柄的位置，我们会对任何 <a href="https://docs.oracle.com/javase/8/docs/api/java/io/Closeable.html" target="_blank" rel="external">Closableobject</a> 的生命周期进行跟踪。使用一个 Java 代理，我们可以修改任何构造，或者关闭任意一个这样的对象。有了这个信息，我们就有希望确认哪个对象在哪种情况下会发生泄漏。</p>
-<h3 id="使用模板进行操作">使用模板进行操作</h3>
-<p>为了实现这一行为，我们首先要定义模板，模板里面包含了我们想要添加到任意一个 <code>Closeable</code> 的对象的构造器或者关闭方法调用中去的代码。为了了解发生泄漏的对象是在哪里被创建或者关闭的，我们就会想要在每一个这样的时间发生时将跟踪栈打印出来。针对这一逻辑的模板方法代码如下:</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line">class ConstructionTemplate {</div><div class="line"></div><div class="line">    <span class="annotation">@Advice</span>.OnMethodExit</div><div class="line">    <span class="keyword">static</span> <span class="keyword">void</span> exit(<span class="annotation">@Advice</span>.This Object self) {</div><div class="line">        <span class="keyword">new</span> RuntimeException(<span class="string">"Created: "</span> + self).printStackTrace();</div><div class="line">    }</div><div class="line"></div><div class="line">}</div><div class="line"></div><div class="line">class CloseTemplate {</div><div class="line"></div><div class="line">    <span class="annotation">@Advice</span>.OnMethodEnter</div><div class="line">    <span class="keyword">static</span> <span class="keyword">void</span> enter(<span class="annotation">@Advice</span>.This Object self) {</div><div class="line">        <span class="keyword">new</span> RuntimeException(<span class="string">"Closed: "</span> + self).printStackTrace();</div><div class="line">    }</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>模板方法上加上了 <code>OnMethodExit</code> 和 <code>OnMethodEnter</code> 注解，以通知 Byte Buddy 我们会想要它在什么时候被调用。它们的任何参数都会被加上注解，以指定其在被重新定义的方法中所表示的值。当应用了该模板时，Byte Buddy 接着就会将任何针对一个参数的访问映射到对注解的值进行加载，就好像方法实例一般就是由<code>this</code>来表示的。</p>
-<p>为了将该修改应用到任何实现了 Closable 接口的类，Byte Buddy 提供了一种特定领域语言用以创建来匹配类型和方法的 Java 代理，并在其可应用时对上述模板进行应用：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">TracingAgent</span> </span>{</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">agentmain</span>(String arg, Instrumentation inst) {</div><div class="line">        <span class="keyword">new</span> AgentBuilder.Default()</div><div class="line">                <span class="comment">// by default, JVM classes are not instrumented</span></div><div class="line">                .ignore(none())</div><div class="line">                .disableClassFormatChanges()</div><div class="line">                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)</div><div class="line">                .type(isSubTypeOf(Closable.class))</div><div class="line">                .transform((builder, type, loader) -&gt; builder</div><div class="line">                        .visit(Advice</div><div class="line">                                .to(ConstructionTemplate.class)</div><div class="line">                                .on(isConstructor()))</div><div class="line">                        .visit(Advice</div><div class="line">                                .to(CloseTemplate.class)</div><div class="line">                                .on(named(<span class="string">"close"</span>).and(takesArguments(<span class="number">0</span>)))</div><div class="line">                        ))</div><div class="line">                .installOn(inst);</div><div class="line">    }</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<p>在默认情况下，Byte Buddy 不会对位于 <code>java.*</code> 命名空间中定义的类进行修改，它们可以通过设置一个无效的忽略匹配器来被修改。此外， Byte Buddy 需要在我们对重新转换进行应用的时候被告知不要去修改我们前面讨论过的 class 文件格式。只有这样做，Byte Buddy 才可以自动地侦测到任何实现了 <code>Closable</code> 接口的现有或者未来将会有的类型，并将上述的模板代码添加到其构造器和关闭方法。</p>
-<h3 id="附加代理">附加代理</h3>
-<p>Byte Buddy 还提供了在运行时附加一个代理的便利方法。为了应对 tools.jar 位置和虚拟机类型的差异, Byte Buddy 给附件添加了一个抽象层，在这一层可以自动检测到正确的设置。在将上述的代理打包到一个 JAR 文件中之后，就可以通过调用如下代码来附加到发生资源泄漏的进程：</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">File jarFile = getAgent();</div><div class="line">String processId = getProcessId();</div><div class="line">ByteBuddyAgent.install(jarFile, processId);</div></pre></td></tr></table></figure>
-
-<p>当然，上述代理很快就会为手动处理创建太多的输出。为了提供更多的便利，在释放之前再来收集被创建的对象也许会更有用。通过创建一个 Java 代理，这样也可以同编写一个 Java 应用程序来实现此行为一样的简单。</p>
-<h2 id="总结">总结</h2>
-<p>在本文中，我们深入了解了 attach API，它使得将一个 Java 代理按顺序注入到任意一个运行中的 JVM 进程成为可能。该代理被表示为一个 JAR 文件，里面包含了一个类，类里面有一个远程进程可以在一个指定线程中执行的 agentmain 方法。该方法可以接收一个 Instrumentation 接口的实例作为参数，可以读已经加载的类进行重新定义。对代码的重定义，既可以通过用打了补丁的版本替换整个 class 文件来实现，也可以通过对现有类的字节码进行修改来实现，这样的操作可以比较简单的用诸如 Byte Buddy 这样的库来完成。</p>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>原文: <a href="https://www.sitepoint.com/fixing-bugs-in-running-java-code-with-dynamic-attach/" target="_blank" rel="external">Fixing Bugs in Running Java Code with Dynamic Attach</a> by Rafael Winterhalter</p>
-<p><a href="https://www.oschina.net" target="_blank" rel="external">开源中国</a>组织翻译: <a href="http://www.oschina.net/translate/fixing-bugs-in-running-java-code-with-dynamic-attach" target="_blank" rel="external">在 Java 中运用动态挂载实现 Bug 的热修复</a> by TedCruz、<br>无若、LeoXu、Tocy等。</p>
-<p>大多数 JVM 具备 Java 的 <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/jpda/enhancements1.4.html#hotswap" target="_blank" rel="external">HotSwap</a> 特性，大部分开发者认为它仅仅是一个调试工具。利用这一特性,有可能在不重启 Java 进程条件下，改变 Java 方法的实现。典型的例子是使用 IDE 来编码。然而 HotSwap 可以在生产环境中实现这一功能。通过这种方式，不用停止运行程序，就可以扩展在线的应用程序，或者在运行的项目上修复小的错误。这篇文章中，我将演示动态绑定、应用运行期代码变化进行绑定、介绍一些工具 API 以及 <a href="http://bytebuddy.net/" target="_blank" rel="external">Byte Buddy 库</a>，这个库提供了一些 API 代码改变更方便。</p>
-]]>
-    
-    </summary>
-    
-      <category term="Java" scheme="https://colobu.com/categories/Java/"/>
     
   </entry>
   
