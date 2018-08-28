@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="https://colobu.com/"/>
-  <updated>2018-08-28T10:36:07.021Z</updated>
+  <updated>2018-08-28T12:20:15.324Z</updated>
   <id>https://colobu.com/</id>
   
   <author>
@@ -13,6 +13,74 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[C和Go相互调用]]></title>
+    <link href="https://colobu.com/2018/08/28/c-and-go-calling-interaction/"/>
+    <id>https://colobu.com/2018/08/28/c-and-go-calling-interaction/</id>
+    <published>2018-08-28T11:45:46.000Z</published>
+    <updated>2018-08-28T12:19:50.275Z</updated>
+    <content type="html"><![CDATA[<p>C可以调用Go，并且Go可以调用C， 如果更进一步呢， <code>C--&gt;Go--&gt;C</code> 或者 <code>Go--&gt;C--&gt;Go</code>的调用如何实现？</p>
+<p>本文通过两个简单的例子帮助你了解这两种复杂的调用关系。本文不涉及两者之间的复杂的数据转换，官方文章<a href="https://blog.golang.org/c-go-cgo" target="_blank" rel="external">C? Go? Cgo!</a>、<a href="https://github.com/golang/go/wiki/cgo" target="_blank" rel="external">wiki/cgo</a>和<a href="http://golang.org/cmd/cgo" target="_blank" rel="external">cmd/cgo</a>有一些介绍。</p>
+<a id="more"></a>
+<h2 id="Go-&gt;C-&gt;Go">Go--&gt;C--&gt;Go</h2>
+<p>Go程序调用C实现的函数，然后C实现的函数又调用Go实现的函数。</p>
+<p>1、首先，我们新建一个<code>hello.go</code>的文件：</p>
+<figure class="highlight go"><figcaption><span>hello.go</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="string">"C"</span></div><div class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></div><div class="line"></div><div class="line"><span class="comment">//export HelloFromGo</span></div><div class="line"><span class="keyword">func</span> HelloFromGo() {</div><div class="line">	fmt.Printf(<span class="string">"Hello from Go!\n"</span>)</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>它定义了一个<code>HelloFromGo</code>函数，注意这个函数是一个纯的Go函数，我们定义它的输出符号为<code>HelloFromGo</code>。</p>
+<p>2、接着我们新建一个<code>hello.c</code>的文件：</p>
+<figure class="highlight c"><figcaption><span>hello.c</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdio.h&gt;</span></div><div class="line"><span class="preprocessor">#<span class="keyword">include</span> "_cgo_export.h"</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> helloFromC() {</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"Hi from C\n"</span>);</div><div class="line">    <span class="comment">//call Go function</span></div><div class="line">    HelloFromGo();</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>这个c文件定义了一个C函数<code>helloFromC</code>,内部它会调用我们刚才定义的<code>HelloFromGo</code>函数。</p>
+<p>这样，我们实现了<code>C</code>调用<code>Go</code>: <code>C--&gt;Go</code>,下面我们再实现Go调用C。</p>
+<p>3、最后新建一个<code>main.go</code>文件：</p>
+<figure class="highlight go"><figcaption><span>main.go</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="comment">/*</span></div><div class="line">extern int helloFromC();</div><div class="line">*/</div><div class="line"><span class="keyword">import</span> <span class="string">"C"</span></div><div class="line"></div><div class="line"><span class="keyword">func</span> main() {</div><div class="line">	<span class="comment">//call c function</span></div><div class="line">	C.helloFromC()</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>它调用第二步实现的C函数<code>helloFromC</code>。</p>
+<p>运行测试一下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ go run .</div><div class="line">Hi from C</div><div class="line">Hello from Go!</div></pre></td></tr></table></figure>
+
+<p>可以看到，期望的函数调用正常的运行。第一行是C函数的输出，第二行是Go函数的输出。</p>
+<h2 id="C-&gt;Go-&gt;C">C--&gt;Go--&gt;C</h2>
+<p>第二个例子演示了C程序调用Go实现的函数，然后Go实现的函数又调用C实现的函数。</p>
+<p>1、首先新建一个<code>hello.c</code>文件：</p>
+<figure class="highlight c"><figcaption><span>hello.c</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdio.h&gt;</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> helloFromC() {</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"Hi from C\n"</span>);</div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>它定义了一个纯C实现的函数。</p>
+<p>2、接着新建一个<code>hello.go</code>文件：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="comment">// go build -o hello.so -buildmode=c-shared .</span></div><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="comment">/*</span></div><div class="line">extern int helloFromC();</div><div class="line">*/</div><div class="line"><span class="keyword">import</span> <span class="string">"C"</span></div><div class="line"></div><div class="line"><span class="keyword">import</span> <span class="string">"fmt"</span></div><div class="line"></div><div class="line"><span class="comment">//export HelloFromGo</span></div><div class="line"><span class="keyword">func</span> HelloFromGo() {</div><div class="line">	fmt.Printf(<span class="string">"Hello from Go!\n"</span>)</div><div class="line">	C.helloFromC()</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">func</span> main() {</div><div class="line"></div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>它实现了一个Go函数<code>HelloFromGo</code>,内部实现调用了C实现的函数<code>helloFromC</code>,这样我们就实现了<code>Go--&gt;C</code>。</p>
+<p>注意包名设置为<code>package main</code>，并且增加一个空的<code>main</code>函数。</p>
+<p>运行<code>go build -o hello.so -buildmode=c-shared .</code>生成一个C可以调用的库，这调命令执行完后会生成<code>hello.so</code>文件和<code>hello.h</code>文件。</p>
+<p>3、最后新建一个文件夹，随便起个名字，比如<code>main</code></p>
+<p>将刚才生成的<code>hello.so</code>文件和<code>hello.h</code>文件复制到<code>main</code>文件夹，并在<code>main</code>文件夹中新建一个文件<code>main.c</code>:</p>
+<figure class="highlight c"><figcaption><span>main.c</span></figcaption><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="preprocessor">#<span class="keyword">include</span> &lt;stdio.h&gt;</span></div><div class="line"><span class="preprocessor">#<span class="keyword">include</span> "hello.h"</span></div><div class="line"></div><div class="line"><span class="keyword">int</span> main() {</div><div class="line">    <span class="built_in">printf</span>(<span class="string">"use hello lib from C:\n"</span>);</div><div class="line">   </div><div class="line">    HelloFromGo();</div><div class="line">    </div><div class="line">    <span class="keyword">return</span> <span class="number">0</span>;</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>运行<code>gcc -o main main.c hello.so</code>生成可执行文件<code>main</code>, 运行<code>main</code>:</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ ./main</div><div class="line">use hello lib from C:</div><div class="line">Hello from Go!</div><div class="line">Hi from C</div></pre></td></tr></table></figure>
+
+<p>第一行输出来自<code>main.c</code>,第二行来自Go函数，第三行来自<code>hello.c</code>中的C函数，这样我们就实现了<code>C--&gt;Go--C</code>的复杂调用。</p>
+<h3 id="参考文档">参考文档</h3>
+<ol>
+<li><a href="https://medium.com/using-go-in-mobile-apps/using-go-in-mobile-apps-part-1-calling-go-functions-from-c-be1ecf7dfbc6" target="_blank" rel="external">https://medium.com/using-go-in-mobile-apps/using-go-in-mobile-apps-part-1-calling-go-functions-from-c-be1ecf7dfbc6</a></li>
+<li><a href="https://github.com/vladimirvivien/go-cshared-examples" target="_blank" rel="external">https://github.com/vladimirvivien/go-cshared-examples</a></li>
+<li><a href="http://golang.org/cmd/cgo" target="_blank" rel="external">http://golang.org/cmd/cgo</a></li>
+<li><a href="https://gist.github.com/zchee/b9c99695463d8902cd33" target="_blank" rel="external">https://gist.github.com/zchee/b9c99695463d8902cd33</a></li>
+<li><a href="https://medium.com/@liamkelly17/working-with-packed-c-structs-in-cgo-224a0a3b708b" target="_blank" rel="external">https://medium.com/@liamkelly17/working-with-packed-c-structs-in-cgo-224a0a3b708b</a></li>
+</ol>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>C可以调用Go，并且Go可以调用C， 如果更进一步呢， <code>C--&gt;Go--&gt;C</code> 或者 <code>Go--&gt;C--&gt;Go</code>的调用如何实现？</p>
+<p>本文通过两个简单的例子帮助你了解这两种复杂的调用关系。本文不涉及两者之间的复杂的数据转换，官方文章<a href="https://blog.golang.org/c-go-cgo" target="_blank" rel="external">C? Go? Cgo!</a>、<a href="https://github.com/golang/go/wiki/cgo" target="_blank" rel="external">wiki/cgo</a>和<a href="http://golang.org/cmd/cgo" target="_blank" rel="external">cmd/cgo</a>有一些介绍。</p>
+]]>
+    
+    </summary>
+    
+      <category term="Go" scheme="https://colobu.com/categories/Go/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[[翻译]15个最常用的GCC编译器参数]]></title>
@@ -666,7 +734,7 @@
     <link href="https://colobu.com/2018/06/13/cgo-articles/"/>
     <id>https://colobu.com/2018/06/13/cgo-articles/</id>
     <published>2018-06-13T10:08:15.000Z</published>
-    <updated>2018-07-19T09:46:19.623Z</updated>
+    <updated>2018-08-28T10:56:52.554Z</updated>
     <content type="html"><![CDATA[<p>虽然<code>CGO</code>属于不太常用的技术，但是偶尔在一些场景中还是会用到的，本文搜集了一些<code>CGO</code>的文章, 方便大家学习和参考。</p>
 <a id="more"></a>
 <h3 id="官方文章">官方文章</h3>
@@ -685,7 +753,7 @@
 <li><a href="https://utcc.utoronto.ca/~cks/space/blog/programming/GoCGoStringFunctions" target="_blank" rel="external">CGo&#39;s Go string functions explained</a>: CGO的字符串</li>
 <li><a href="https://utcc.utoronto.ca/~cks/space/blog/programming/GoCGoCompatibleStructs" target="_blank" rel="external">Getting C-compatible structs in Go with and for cgo</a>: C兼容的 struct</li>
 <li><a href="https://utcc.utoronto.ca/~cks/space/blog/programming/GoCgoExperienceNotes" target="_blank" rel="external">Some notes on my experience using Go&#39;s cgo system</a>: CGO使用经验</li>
-<li><a href="https://medium.com/using-go-in-mobile-apps/using-go-in-mobile-apps-part-1-calling-go-functions-from-c-be1ecf7dfbc6" target="_blank" rel="external">Calling Go functions from C</a>: 在C语言中调用Go函数</li>
+<li><a href="https://medium.com/using-go-in-mobile-apps/using-go-in-mobile-apps-part-1-calling-go-functions-from-c-be1ecf7dfbc6" target="_blank" rel="external">Calling Go functions from C</a>: 在C语言中调用Go函数以及相反</li>
 <li><a href="https://medium.com/learning-the-go-programming-language/calling-go-functions-from-other-languages-4c7d8bcc69bf" target="_blank" rel="external">Calling Go Functions from Other Languages</a>:从其它语言调用Go函数</li>
 <li><a href="https://blog.filippo.io/rustgo/" target="_blank" rel="external">rustgo: calling Rust from Go with near-zero overhead</a>:使用的不是CGO,而是FFI</li>
 <li><a href="https://blog.wallaroolabs.com/2018/04/adventures-with-cgo-part-1--the-pointering/" target="_blank" rel="external">Adventures with cgo: Part 1- The Pointering</a>: 探索</li>
@@ -1768,123 +1836,6 @@
 ]]></content>
     <summary type="html">
     <![CDATA[<p>最近碰到群里网友问如果检查网络连接的Timeout,联想最近看到的另一个问题， 在这篇文章统一记录一下。</p>
-]]>
-    
-    </summary>
-    
-      <category term="Go" scheme="https://colobu.com/categories/Go/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[go addressable 详解]]></title>
-    <link href="https://colobu.com/2018/02/27/go-addressable/"/>
-    <id>https://colobu.com/2018/02/27/go-addressable/</id>
-    <published>2018-02-27T10:48:46.000Z</published>
-    <updated>2018-02-28T06:05:42.727Z</updated>
-    <content type="html"><![CDATA[<p>Go语言规范中规定了可寻址(addressable)对象的定义,</p>
-<blockquote>
-<p>For an operand x of type T, the address operation &amp;x generates a pointer of type *T to x. The operand must be addressable, that is, either a variable, pointer indirection, or slice indexing operation; or a field selector of an addressable struct operand; or an array indexing operation of an addressable array. As an exception to the addressability requirement, x may also be a (possibly parenthesized) composite literal. If the evaluation of x would cause a run-time panic, then the evaluation of &amp;x does too.</p>
-</blockquote>
-<p>对于一个对象<code>x</code>, 如果它的类型为<code>T</code>, 那么<code>&amp;x</code>则会产生一个类型为<code>*T</code>的指针，这个指针指向<code>x</code>, 这是这一段的第一句话，也是我们在开发过程中经常使用的一种获取对象指针的一种方式。 </p>
-<a id="more"></a>
-<p><img src="memory.jpg" alt=""></p>
-<h2 id="addressable">addressable</h2>
-<p>上面规范中的这段话规定， <code>x</code>必须是可寻址的， 也就是说，它只能是以下几种方式：</p>
-<ul>
-<li>一个变量: <code>&amp;x</code></li>
-<li>指针引用(pointer indirection): <code>&amp;*x</code></li>
-<li>slice索引操作(不管slice是否可寻址): <code>&amp;s[1]</code></li>
-<li>可寻址struct的字段: <code>&amp;point.X</code></li>
-<li>可寻址数组的索引操作: <code>&amp;a[0]</code></li>
-<li>composite literal类型: <code>&amp;struct{ X int }{1}</code></li>
-</ul>
-<p>下列情况<code>x</code>是不可以寻址的，你不能使用<code>&amp;x</code>取得指针：</p>
-<ul>
-<li>字符串中的字节:</li>
-<li>map对象中的元素</li>
-<li>接口对象的动态值(通过type assertions获得)</li>
-<li>常数</li>
-<li>literal值(非composite literal)</li>
-<li>package 级别的函数</li>
-<li>方法method (用作函数值)</li>
-<li>中间值(intermediate value):<ul>
-<li>函数调用</li>
-<li>显式类型转换</li>
-<li>各种类型的操作 （除了指针引用pointer dereference操作 <code>*x</code>):<ul>
-<li>channel receive operations</li>
-<li>sub-string operations</li>
-<li>sub-slice operations</li>
-<li>加减乘除等运算符</li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-<blockquote>
-<p>Tapir Games在他的文章<a href="http://www.tapirgames.com/blog/golang-unofficial-faq#unaddressable-values" target="_blank" rel="external">unaddressable-values</a>中做了很好的整理。</p>
-</blockquote>
-<p>有几个点需要解释下：</p>
-<ul>
-<li>常数为什么不可以寻址?： 如果可以寻址的话，我们可以通过指针修改常数的值，破坏了常数的定义。</li>
-<li>map的元素为什么不可以寻址？:两个原因，如果对象不存在，则返回零值，零值是不可变对象，所以不能寻址，如果对象存在，因为Go中map实现中元素的地址是变化的，这意味着寻址的结果是无意义的。</li>
-<li>为什么slice不管是否可寻址，它的元素读是可以寻址的？:因为slice底层实现了一个数组，它是可以寻址的。</li>
-<li>为什么字符串中的字符/字节又不能寻址呢：因为字符串是不可变的。</li>
-</ul>
-<p>规范中还有几处提到了 <code>addressable</code>:</p>
-<ul>
-<li>调用一个receiver为指针类型的方法时，使用一个addressable的值将自动获取这个值的指针</li>
-<li><code>++</code>、<code>--</code>语句的操作对象必须是addressable或者是map的index操作</li>
-<li>赋值语句<code>=</code>的左边对象必须是addressable,或者是map的index操作，或者是<code>_</code></li>
-<li>上条同样使用<code>for ... range</code>语句</li>
-</ul>
-<h2 id="reflect-Value的CanAddr方法和CanSet方法"><code>reflect.Value</code>的<code>CanAddr</code>方法和<code>CanSet</code>方法</h2>
-<p>在我们使用<code>reflect</code>执行一些底层的操作的时候， 比如编写序列化库、rpc框架开发、编解码、插件开发等业务的时候，经常会使用到<code>reflect.Value</code>的<code>CanSet</code>方法，用来动态的给对象赋值。 <code>CanSet</code>比<code>CanAddr</code>只加了一个限制，就是struct类型的<code>unexported</code>的字段不能<code>Set</code>，所以我们这节主要介绍<code>CanAddr</code>。</p>
-<p>并不是任意的<code>reflect.Value</code>的<code>CanAddr</code>方法都返回<code>true</code>,根据它的godoc,我们可以知道：</p>
-<blockquote>
-<p>CanAddr reports whether the value&#39;s address can be obtained with Addr. Such values are called addressable. A value is addressable if it is an element of a slice, an element of an addressable array, a field of an addressable struct, or the result of dereferencing a pointer. If CanAddr returns false, calling Addr will panic.</p>
-</blockquote>
-<p>也就是只有下面的类型<code>reflect.Value</code>的<code>CanAddr</code>才是<code>true</code>, 这样的值是<code>addressable</code>:</p>
-<ul>
-<li>slice的元素</li>
-<li>可寻址数组的元素</li>
-<li>可寻址struct的字段</li>
-<li>指针引用的结果</li>
-</ul>
-<p>与规范中规定的<code>addressable</code>, <code>reflect.Value</code>的<code>addressable</code>范围有所缩小， 比如对于栈上分配的变量， 随着方法的生命周期的结束， 栈上的对象也就被回收掉了，这个时候如果获取它们的地址，就会出现不一致的结果，甚至安全问题。</p>
-<blockquote>
-<p>对于栈和堆的对象分配以及逃逸分析，你可以看 William Kennedy  写的系列文章: <a href="https://studygolang.com/articles/12444" target="_blank" rel="external">Go 语言机制之逃逸分析</a></p>
-</blockquote>
-<p>所以如果你想通过<code>reflect.Value</code>对它的值进行更新，应该确保它的<code>CanSet</code>方法返回<code>true</code>,这样才能调用<code>SetXXX</code>进行设置。</p>
-<p>使用<code>reflect.Value</code>的时候有时会对<code>func Indirect(v Value) Value</code>和<code>func (v Value) Elem() Value</code>两个方法有些迷惑，有时候他们俩会返回同样的值，有时候又不会。</p>
-<p>总结一下：</p>
-<ol>
-<li>如果<code>reflect.Value</code>是一个指针， 那么<code>v.Elem()</code>等价于<code>reflect.Indirect(v)</code></li>
-<li>如果不是指针<br>2.1 如果是<code>interface</code>, 那么<code>reflect.Indirect(v)</code>返回同样的值，而<code>v.Elem()</code>返回接口的动态的值<br>2.2 如果是其它值, <code>v.Elem()</code>会panic,而<code>reflect.Indirect(v)</code>返回原值</li>
-</ol>
-<p>下面的代码列出一些<code>reflect.Value</code>是否可以addressable, 你需要注意数组和struct字段的情况，也就是<code>x7</code>、<code>x9</code>、<code>x14</code>、<code>x15</code>的正确的处理方式。</p>
-<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"reflect"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">func</span> main() {</div><div class="line">	checkCanAddr()</div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">type</span> S <span class="keyword">struct</span> {</div><div class="line">	X <span class="typename">int</span></div><div class="line">	Y <span class="typename">string</span></div><div class="line">	z <span class="typename">int</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">func</span> M() <span class="typename">int</span> {</div><div class="line">	<span class="keyword">return</span><span class="number"> 100</span></div><div class="line">}</div><div class="line"></div><div class="line"><span class="keyword">var</span> x0 =<span class="number"> 0</span></div><div class="line"></div><div class="line"><span class="keyword">func</span> checkCanAddr() {</div><div class="line">	<span class="comment">// 可寻址的情况</span></div><div class="line">	v := reflect.ValueOf(x0)</div><div class="line">	fmt.Printf(<span class="string">"x0: %v \tcan be addressable and set: %t, %t\n"</span>, x0, v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x1 =<span class="number"> 1</span></div><div class="line">	v = reflect.Indirect(reflect.ValueOf(x1))</div><div class="line">	fmt.Printf(<span class="string">"x1: %v \tcan be addressable and set: %t, %t\n"</span>, x1, v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x2 = &x1</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(x2))</div><div class="line">	fmt.Printf(<span class="string">"x2: %v \tcan be addressable and set: %t, %t\n"</span>, x2, v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x3 = time.Now()</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(x3))</div><div class="line">	fmt.Printf(<span class="string">"x3: %v \tcan be addressable and set: %t, %t\n"</span>, x3, v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x4 = &x3</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(x4))</div><div class="line">	fmt.Printf(<span class="string">"x4: %v \tcan be addressable and set: %t, %t\n"</span>, x4, v.CanAddr(), v.CanSet()) <span class="comment">// true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x5 = []<span class="typename">int</span><span class="number">{1</span>,<span class="number"> 2</span>,<span class="number"> 3</span>}</div><div class="line">	v = reflect.ValueOf(x5)</div><div class="line">	fmt.Printf(<span class="string">"x5: %v \tcan be addressable and set: %t, %t\n"</span>, x5, v.CanAddr(), v.CanSet()) <span class="comment">// false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x6 = []<span class="typename">int</span><span class="number">{1</span>,<span class="number"> 2</span>,<span class="number"> 3</span>}</div><div class="line">	v = reflect.ValueOf(x6<span class="number">[0</span>])</div><div class="line">	fmt.Printf(<span class="string">"x6: %v \tcan be addressable and set: %t, %t\n"</span>, x6<span class="number">[0</span>], v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x7 = []<span class="typename">int</span><span class="number">{1</span>,<span class="number"> 2</span>,<span class="number"> 3</span>}</div><div class="line">	v = reflect.ValueOf(x7).Index<span class="number">(0</span>)</div><div class="line">	fmt.Printf(<span class="string">"x7: %v \tcan be addressable and set: %t, %t\n"</span>, x7<span class="number">[0</span>], v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	v = reflect.ValueOf(&x7<span class="number">[1</span>])</div><div class="line">	fmt.Printf(<span class="string">"x7.1: %v \tcan be addressable and set: %t, %t\n"</span>, x7<span class="number">[1</span>], v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x8 = <span class="number">[3</span>]<span class="typename">int</span><span class="number">{1</span>,<span class="number"> 2</span>,<span class="number"> 3</span>}</div><div class="line">	v = reflect.ValueOf(x8<span class="number">[0</span>])</div><div class="line">	fmt.Printf(<span class="string">"x8: %v \tcan be addressable and set: %t, %t\n"</span>, x8<span class="number">[0</span>], v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="comment">// https://groups.google.com/forum/#!topic/golang-nuts/RF9zsX82MWw</span></div><div class="line">	<span class="keyword">var</span> x9 = <span class="number">[3</span>]<span class="typename">int</span><span class="number">{1</span>,<span class="number"> 2</span>,<span class="number"> 3</span>}</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(x9).Index<span class="number">(0</span>))</div><div class="line">	fmt.Printf(<span class="string">"x9: %v \tcan be addressable and set: %t, %t\n"</span>, x9<span class="number">[0</span>], v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x10 = <span class="number">[3</span>]<span class="typename">int</span><span class="number">{1</span>,<span class="number"> 2</span>,<span class="number"> 3</span>}</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(&x10)).Index<span class="number">(0</span>)</div><div class="line">	fmt.Printf(<span class="string">"x9: %v \tcan be addressable and set: %t, %t\n"</span>, x10<span class="number">[0</span>], v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x11 = S{}</div><div class="line">	v = reflect.ValueOf(x11)</div><div class="line">	fmt.Printf(<span class="string">"x11: %v \tcan be addressable and set: %t, %t\n"</span>, x11, v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x12 = S{}</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(&x12))</div><div class="line">	fmt.Printf(<span class="string">"x12: %v \tcan be addressable and set: %t, %t\n"</span>, x12, v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x13 = S{}</div><div class="line">	v = reflect.ValueOf(x13).FieldByName(<span class="string">"X"</span>)</div><div class="line">	fmt.Printf(<span class="string">"x13: %v \tcan be addressable and set: %t, %t\n"</span>, x13, v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x14 = S{}</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(&x14)).FieldByName(<span class="string">"X"</span>)</div><div class="line">	fmt.Printf(<span class="string">"x14: %v \tcan be addressable and set: %t, %t\n"</span>, x14, v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x15 = S{}</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(&x15)).FieldByName(<span class="string">"z"</span>)</div><div class="line">	fmt.Printf(<span class="string">"x15: %v \tcan be addressable and set: %t, %t\n"</span>, x15, v.CanAddr(), v.CanSet()) <span class="comment">//true,false</span></div><div class="line"></div><div class="line">	v = reflect.Indirect(reflect.ValueOf(&S{}))</div><div class="line">	fmt.Printf(<span class="string">"x15.1: %v \tcan be addressable and set: %t, %t\n"</span>, &S{}, v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x16 = M</div><div class="line">	v = reflect.ValueOf(x16)</div><div class="line">	fmt.Printf(<span class="string">"x16: %p \tcan be addressable and set: %t, %t\n"</span>, x16, v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x17 = M</div><div class="line">	v = reflect.Indirect(reflect.ValueOf(&x17))</div><div class="line">	fmt.Printf(<span class="string">"x17: %p \tcan be addressable and set: %t, %t\n"</span>, x17, v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x18 <span class="keyword">interface</span>{} = &x11</div><div class="line">	v = reflect.ValueOf(x18)</div><div class="line">	fmt.Printf(<span class="string">"x18: %v \tcan be addressable and set: %t, %t\n"</span>, x18, v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x19 <span class="keyword">interface</span>{} = &x11</div><div class="line">	v = reflect.ValueOf(x19).Elem()</div><div class="line">	fmt.Printf(<span class="string">"x19: %v \tcan be addressable and set: %t, %t\n"</span>, x19, v.CanAddr(), v.CanSet()) <span class="comment">//true,true</span></div><div class="line"></div><div class="line">	<span class="keyword">var</span> x20 = [...]<span class="typename">int</span><span class="number">{1</span>,<span class="number"> 2</span>,<span class="number"> 3</span>}</div><div class="line">	v = reflect.ValueOf([...]<span class="typename">int</span><span class="number">{1</span>,<span class="number"> 2</span>,<span class="number"> 3</span>})</div><div class="line">	fmt.Printf(<span class="string">"x20: %v \tcan be addressable and set: %t, %t\n"</span>, x20, v.CanAddr(), v.CanSet()) <span class="comment">//false,false</span></div><div class="line">}</div></pre></td></tr></table></figure>
-
-<h2 id="参考资料">参考资料</h2>
-<ul>
-<li><a href="http://www.tapirgames.com/blog/golang-unofficial-faq#unaddressable-values" target="_blank" rel="external">http://www.tapirgames.com/blog/golang-unofficial-faq#unaddressable-values</a></li>
-<li><a href="https://blog.golang.org/laws-of-reflection" target="_blank" rel="external">https://blog.golang.org/laws-of-reflection</a></li>
-<li><a href="https://stackoverflow.com/questions/25384640/why-golang-reflect-makeslice-returns-un-addressable-value" target="_blank" rel="external">https://stackoverflow.com/questions/25384640/why-golang-reflect-makeslice-returns-un-addressable-value</a></li>
-<li><a href="http://grokbase.com/t/gg/golang-nuts/13bwpzedxh/go-nuts-golang-reflect-addressable-is-not-consistency" target="_blank" rel="external">http://grokbase.com/t/gg/golang-nuts/13bwpzedxh/go-nuts-golang-reflect-addressable-is-not-consistency</a></li>
-<li><a href="https://github.com/golang/go/issues/11865" target="_blank" rel="external">https://github.com/golang/go/issues/11865</a></li>
-<li><a href="https://stackoverflow.com/questions/20224478/dereferencing-a-map-index-in-golang" target="_blank" rel="external">https://stackoverflow.com/questions/20224478/dereferencing-a-map-index-in-golang</a></li>
-<li><a href="https://stackoverflow.com/questions/38168329/why-are-map-values-not-addressable" target="_blank" rel="external">https://stackoverflow.com/questions/38168329/why-are-map-values-not-addressable</a></li>
-<li><a href="https://stackoverflow.com/questions/40793289/go-struct-literals-why-is-this-one-addressable" target="_blank" rel="external">https://stackoverflow.com/questions/40793289/go-struct-literals-why-is-this-one-addressable</a></li>
-<li><a href="https://groups.google.com/forum/#!topic/golang-nuts/FnTCX9R_PbM" target="_blank" rel="external">https://groups.google.com/forum/#!topic/golang-nuts/FnTCX9R_PbM</a></li>
-<li><a href="https://stackoverflow.com/questions/24318389/golang-elem-vs-indirect-in-the-reflect-package" target="_blank" rel="external">https://stackoverflow.com/questions/24318389/golang-elem-vs-indirect-in-the-reflect-package</a></li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>Go语言规范中规定了可寻址(addressable)对象的定义,</p>
-<blockquote>
-<p>For an operand x of type T, the address operation &amp;x generates a pointer of type *T to x. The operand must be addressable, that is, either a variable, pointer indirection, or slice indexing operation; or a field selector of an addressable struct operand; or an array indexing operation of an addressable array. As an exception to the addressability requirement, x may also be a (possibly parenthesized) composite literal. If the evaluation of x would cause a run-time panic, then the evaluation of &amp;x does too.</p>
-</blockquote>
-<p>对于一个对象<code>x</code>, 如果它的类型为<code>T</code>, 那么<code>&amp;x</code>则会产生一个类型为<code>*T</code>的指针，这个指针指向<code>x</code>, 这是这一段的第一句话，也是我们在开发过程中经常使用的一种获取对象指针的一种方式。 </p>
 ]]>
     
     </summary>
