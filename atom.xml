@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="https://colobu.com/"/>
-  <updated>2018-08-28T12:21:55.403Z</updated>
+  <updated>2018-08-29T04:37:59.752Z</updated>
   <id>https://colobu.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="https://colobu.com/2018/08/28/c-and-go-calling-interaction/"/>
     <id>https://colobu.com/2018/08/28/c-and-go-calling-interaction/</id>
     <published>2018-08-28T11:45:46.000Z</published>
-    <updated>2018-08-28T12:19:50.275Z</updated>
+    <updated>2018-08-29T04:37:26.528Z</updated>
     <content type="html"><![CDATA[<p>C可以调用Go，并且Go可以调用C， 如果更进一步呢， <code>C--&gt;Go--&gt;C</code> 或者 <code>Go--&gt;C--&gt;Go</code>的调用如何实现？</p>
 <p>本文通过两个简单的例子帮助你了解这两种复杂的调用关系。本文不涉及两者之间的复杂的数据转换，官方文章<a href="https://blog.golang.org/c-go-cgo" target="_blank" rel="external">C? Go? Cgo!</a>、<a href="https://github.com/golang/go/wiki/cgo" target="_blank" rel="external">wiki/cgo</a>和<a href="http://golang.org/cmd/cgo" target="_blank" rel="external">cmd/cgo</a>有一些介绍。</p>
 <a id="more"></a>
@@ -69,6 +69,8 @@
 <li><a href="http://golang.org/cmd/cgo" target="_blank" rel="external">http://golang.org/cmd/cgo</a></li>
 <li><a href="https://gist.github.com/zchee/b9c99695463d8902cd33" target="_blank" rel="external">https://gist.github.com/zchee/b9c99695463d8902cd33</a></li>
 <li><a href="https://medium.com/@liamkelly17/working-with-packed-c-structs-in-cgo-224a0a3b708b" target="_blank" rel="external">https://medium.com/@liamkelly17/working-with-packed-c-structs-in-cgo-224a0a3b708b</a></li>
+<li><a href="https://groups.google.com/forum/#!topic/golang-nuts/EhndTzcPJxQ" target="_blank" rel="external">https://groups.google.com/forum/#!topic/golang-nuts/EhndTzcPJxQ</a></li>
+<li><a href="https://docs.google.com/document/d/1nr-TQHw_er6GOQRsF6T43GGhFDelrAP0NqSS_00RgZQ/edit#" target="_blank" rel="external">https://docs.google.com/document/d/1nr-TQHw_er6GOQRsF6T43GGhFDelrAP0NqSS_00RgZQ/edit#</a></li>
 </ol>
 ]]></content>
     <summary type="html">
