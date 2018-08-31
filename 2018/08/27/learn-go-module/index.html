@@ -187,7 +187,7 @@
 <li>运行 <code>go get package@version</code> 将会升级到指定的版本号<code>version</code></li>
 </ul>
 <h3 id="go_mod_vendor">go mod vendor</h3>
-<p><code>go mod vendor</code> 会将modules下载到vendor中</p>
+<p><code>go mod vendor</code> 会复制modules下载到vendor中, 貌似只会下载你代码中引用的库，而不是go.mod中定义全部的module。</p>
 <h3 id="go_module,_vendor_和_Travis_CI">go module, vendor 和 Travis CI</h3>
 <p><a href="https://arslan.io/2018/08/26/using-go-modules-with-vendor-support-on-travis-ci/" target="_blank" rel="external">https://arslan.io/2018/08/26/using-go-modules-with-vendor-support-on-travis-ci/</a></p>
 
