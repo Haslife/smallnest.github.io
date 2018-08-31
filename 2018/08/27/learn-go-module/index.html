@@ -155,7 +155,7 @@
 <p>要使用<code>go module</code>,首先要设置<code>GO111MODULE=on</code>,这没什么可说的，如果没设置，执行命令的时候会有提示，这个大家应该都了解了。</p>
 <h3 id="既有项目">既有项目</h3>
 <p>假设你已经有了一个go 项目， 比如在<code>$GOPATH/github.com/smallnest/rpcx</code>下， 你可以使用<code>go mod init github.com/smallnest/rpcx</code>在这个文件夹下创建一个空的<code>go.mod</code> (只有第一行 <code>module github.com/smallnest/rpcx</code>)。</p>
-<p>然后你可以通过 <code>go get -m ./...</code>让它查找依赖，并记录在<code>go.mod</code>文件中(你还可以指定 <code>-tags</code>,这样可以把tags的依赖都查找到)。</p>
+<p>然后你可以通过 <code>go get ./...</code>让它查找依赖，并记录在<code>go.mod</code>文件中(你还可以指定 <code>-tags</code>,这样可以把tags的依赖都查找到)。</p>
 <p>通过<code>go mod tidy</code>也可以用来为<code>go.mod</code>增加丢失的依赖，删除不需要的依赖，但是我不确定它怎么处理<code>tags</code>。</p>
 <p>执行上面的命令会把<code>go.mod</code>的<code>latest</code>版本换成实际的最新的版本，并且会生成一个<code>go.sum</code>记录每个依赖库的版本和哈希值。</p>
 <h3 id="新的项目">新的项目</h3>
