@@ -2,6 +2,11 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>https://colobu.com/2018/09/06/Go-http2-%E5%92%8C-h2c/</loc>
+    <lastmod>2018-09-06T11:21:16.156Z</lastmod>
+  </url>
+  
+  <url>
     <loc>https://colobu.com/2018/09/05/consensus-mechanisms-in-blockchain/</loc>
     <lastmod>2018-09-05T03:01:18.203Z</lastmod>
   </url>
@@ -574,11 +579,6 @@
   <url>
     <loc>https://colobu.com/2014/12/16/zookeeper-recipes-by-example-summary/</loc>
     <lastmod>2016-12-06T07:54:21.000Z</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://colobu.com/2015/03/06/7-CSS-Units-You-Might-Not-Know-About/</loc>
-    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
   <url>
@@ -1952,12 +1952,17 @@
   </url>
   
   <url>
+    <loc>https://colobu.com/2015/04/24/Web-Frameworks-Benchmark-2015/</loc>
+    <lastmod>2016-12-05T09:06:19.000Z</lastmod>
+  </url>
+  
+  <url>
     <loc>https://colobu.com/documents/index.html</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   
   <url>
-    <loc>https://colobu.com/2015/04/24/Web-Frameworks-Benchmark-2015/</loc>
+    <loc>https://colobu.com/2015/03/06/7-CSS-Units-You-Might-Not-Know-About/</loc>
     <lastmod>2016-12-05T09:06:19.000Z</lastmod>
   </url>
   

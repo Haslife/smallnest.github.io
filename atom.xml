@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="https://colobu.com/"/>
-  <updated>2018-09-05T03:02:26.209Z</updated>
+  <updated>2018-09-06T11:21:34.259Z</updated>
   <id>https://colobu.com/</id>
   
   <author>
@@ -13,6 +13,74 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Go http2 和 h2c]]></title>
+    <link href="https://colobu.com/2018/09/06/Go-http2-%E5%92%8C-h2c/"/>
+    <id>https://colobu.com/2018/09/06/Go-http2-和-h2c/</id>
+    <published>2018-09-06T10:10:40.000Z</published>
+    <updated>2018-09-06T11:21:16.156Z</updated>
+    <content type="html"><![CDATA[<p>了解一下http2和h2c (HTTP/2 over TCP,HTTP/2 without TLS)。</p>
+<a id="more"></a>
+<h3 id="http/1-1_的服务器">http/1.1 的服务器</h3>
+<p>我们经常会在代码中启动一个http服务器，最简单的http/1.1服务器如下所示：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">http.Handle(<span class="string">"/foo"</span>, fooHandler)</div><div class="line"></div><div class="line">http.HandleFunc(<span class="string">"/bar"</span>, <span class="keyword">func</span>(w http.ResponseWriter, r *http.Request) {</div><div class="line">	fmt.Fprintf(w, <span class="string">"Hello, %q"</span>, html.EscapeString(r.URL.Path))</div><div class="line">})</div><div class="line"></div><div class="line">log.Fatal(http.ListenAndServe(<span class="string">":8080"</span>, <span class="constant">nil</span>))</div></pre></td></tr></table></figure>
+
+<p>使用Go开发web服务非常的简单，快速。</p>
+<h3 id="http/1-1_的服务器_with_TLS">http/1.1 的服务器 with TLS</h3>
+<p>如果想让http/1.1服务器支持TLS, 可以使用如下的代码:</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">http.Handle(<span class="string">"/foo"</span>, fooHandler)</div><div class="line"></div><div class="line">http.HandleFunc(<span class="string">"/bar"</span>, <span class="keyword">func</span>(w http.ResponseWriter, r *http.Request) {</div><div class="line">	fmt.Fprintf(w, <span class="string">"Hello, %q"</span>, html.EscapeString(r.URL.Path))</div><div class="line">})</div><div class="line"></div><div class="line">log.Fatal(http.http.ListenAndServeTLS(<span class="string">":443"</span>, <span class="string">"server.crt"</span>, <span class="string">"server.key"</span>,<span class="constant">nil</span>))</div></pre></td></tr></table></figure>
+
+<p>至于<code>server.crt</code> 和 <code>server.key</code>，你可以使用你从CA购买的证书，你也可以使用下面的测试证书。</p>
+<p>为了测试，你可以创建CA证书和你的服务器使用的证书。</p>
+<p><strong>1、 创建CA证书</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ openssl genrsa -out rootCA.key <span class="number">2048</span></div><div class="line">$ openssl req -x509 -new -nodes -key rootCA.key -days <span class="number">1024</span> -out rootCA.pem</div></pre></td></tr></table></figure>
+
+<p>然后把<code>rootCA.pem</code>加到你的浏览器的证书中</p>
+<p><strong>2、 创建证书</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ openssl genrsa -out server.key <span class="number">2048</span></div><div class="line">$ openssl req -new -key server.key -out server.csr</div><div class="line">$ openssl x509 -req -in server.csr -CA rootCA.pem -CAkey rootCA.key -CAcreateserial -out server.crt -days <span class="number">500</span></div></pre></td></tr></table></figure>
+
+<h3 id="免费证书">免费证书</h3>
+<p>如果你不想从CA花钱购买证书， 也不想配置测试证书，那么你可以使用<code>let&#39;s encrypt</code>的免费证书, 而且<code>let&#39;s encrypt</code>目前支持通配符证书，使用也是很方便的。</p>
+<p>Go的扩展包中提供了<code>let&#39;s encrypt</code>的支持。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">    <span class="string">"crypto/tls"</span></div><div class="line">    <span class="string">"log"</span></div><div class="line">    <span class="string">"net/http"</span></div><div class="line"></div><div class="line">    <span class="string">"golang.org/x/crypto/acme/autocert"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">func</span> main() {</div><div class="line">    certManager := autocert.Manager{</div><div class="line">        Prompt:     autocert.AcceptTOS,</div><div class="line">        HostPolicy: autocert.HostWhitelist(<span class="string">"example.com"</span>), </div><div class="line">        Cache:      autocert.DirCache(<span class="string">"certs"</span>),</div><div class="line">    }</div><div class="line"></div><div class="line">    http.HandleFunc(<span class="string">"/"</span>, <span class="keyword">func</span>(w http.ResponseWriter, r *http.Request) {</div><div class="line">        w.Write([]<span class="typename">byte</span>(<span class="string">"Hello world"</span>))</div><div class="line">    })</div><div class="line"></div><div class="line">    server := &http.Server{</div><div class="line">        Addr: <span class="string">":443"</span>,</div><div class="line">        TLSConfig: &tls.Config{</div><div class="line">            GetCertificate: certManager.GetCertificate,</div><div class="line">        },</div><div class="line">    }</div><div class="line"></div><div class="line">    <span class="keyword">go</span> http.ListenAndServe(<span class="string">":80"</span>, certManager.HTTPHandler(<span class="constant">nil</span>))</div><div class="line"></div><div class="line">    log.Fatal(server.ListenAndServeTLS(<span class="string">""</span>, <span class="string">""</span>)) <span class="comment">//Key and cert are coming from Let's Encrypt</span></div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>或者更简单的：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">log.Fatal(http.Serve(autocert.NewListener(<span class="string">"example.com"</span>), handler))</div></pre></td></tr></table></figure>
+
+<p>看上面的例子, 把<code>example.com</code>换成你的域名，证书暂存在<code>certs</code>文件夹。autocert会定期自动刷新，避免证书过期。它会自动申请证书，并进行验证。</p>
+<p>不过比较遗憾的是， autocert目前不支持通配符域名。</p>
+<blockquote>
+<p>HostWhitelist returns a policy where only the specified host names are allowed. Only exact matches are currently supported. Subdomains, regexp or wildcard will not match.</p>
+</blockquote>
+<p>通配符(ACME v2)的支持也已经完成了，但是迟迟未通过review,所以你暂时还不能使用这个特性。 (<a href="https://github.com/golang/go/issues/21081" target="_blank" rel="external">issue#21081</a>)</p>
+<h3 id="HTTP/2">HTTP/2</h3>
+<p>Go 在 1.6的时候已经支持 <code>HTTP/2</code> 了， 1.8 开始支持<code>PUSH</code>功能，你什么时候开始采用<code>HTTP/2</code>的呢？</p>
+<p>Go的http/2使用也非常简单，但是必须和TLS一起使用。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"log"</span></div><div class="line">	<span class="string">"net/http"</span></div><div class="line">	<span class="string">"time"</span></div><div class="line"></div><div class="line">	<span class="string">"golang.org/x/net/http2"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">const</span> idleTimeout =<span class="number"> 5</span> * time.Minute</div><div class="line"><span class="keyword">const</span> activeTimeout =<span class="number"> 10</span> * time.Minute</div><div class="line"></div><div class="line"><span class="keyword">func</span> main() {</div><div class="line">	<span class="keyword">var</span> srv http.Server</div><div class="line">	<span class="comment">//http2.VerboseLogs = true</span></div><div class="line">	srv.Addr = <span class="string">":8972"</span></div><div class="line"></div><div class="line">	http.HandleFunc(<span class="string">"/"</span>, <span class="keyword">func</span>(w http.ResponseWriter, r *http.Request) {</div><div class="line">		w.Write([]<span class="typename">byte</span>(<span class="string">"hello http2"</span>))</div><div class="line">	})</div><div class="line"></div><div class="line">	http2.ConfigureServer(&srv, &http2.Server{})</div><div class="line"></div><div class="line">	<span class="keyword">go</span> <span class="keyword">func</span>() {</div><div class="line">		log.Fatal(srv.ListenAndServeTLS(<span class="string">"server.crt"</span>, <span class="string">"server.key"</span>))</div><div class="line">	}()</div><div class="line">	<span class="keyword">select</span> {}</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p><code>http2</code>封装并隐藏了http/2的处理逻辑，对于用户来说，可以不必关心内部的具体实现，想http/1.1一样简单的使用即可。</p>
+<p>这里的证书可以使用上面提到证书，或者你购买的1证书，或者免费<code>let&#39;s encrypt</code>证书。</p>
+<h3 id="h2c">h2c</h3>
+<p>上面我们说Go的http/2必须使用TLS是不严谨的，如果你想不使用TLS,你可以使用最近添加的h2c功能。</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">	<span class="string">"fmt"</span></div><div class="line">	<span class="string">"log"</span></div><div class="line">	<span class="string">"net/http"</span></div><div class="line"></div><div class="line">	<span class="string">"golang.org/x/net/http2"</span></div><div class="line">	<span class="string">"golang.org/x/net/http2/h2c"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">func</span> main() {</div><div class="line">	mux := http.NewServeMux()</div><div class="line">	mux.HandleFunc(<span class="string">"/"</span>, <span class="keyword">func</span>(w http.ResponseWriter, r *http.Request) {</div><div class="line">		fmt.Fprint(w, <span class="string">"Hello h2c"</span>)</div><div class="line">	})</div><div class="line">	s := &http.Server{</div><div class="line">        Addr:    <span class="string">":8972"</span>,</div><div class="line">        Handler: mux,</div><div class="line">    }</div><div class="line">    http2.ConfigureServer(s, &http2.Server{})</div><div class="line">    log.Fatal(s.ListenAndServe())</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>使用起来也很简单，单数目前浏览器对http/2都是采用TLS的方式，所以用浏览器访问这个服务的话会退化为http/1.1的协议，测试的话你可以使用Go实现客户端的h2c访问。</p>
+<p>客户端代码如下：</p>
+<figure class="highlight go"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">package</span> main</div><div class="line"></div><div class="line"><span class="keyword">import</span> (</div><div class="line">    <span class="string">"crypto/tls"</span></div><div class="line">    <span class="string">"fmt"</span></div><div class="line">    <span class="string">"log"</span></div><div class="line">    <span class="string">"net"</span></div><div class="line">    <span class="string">"net/http"</span></div><div class="line"></div><div class="line">    <span class="string">"golang.org/x/net/http2"</span></div><div class="line">)</div><div class="line"></div><div class="line"><span class="keyword">func</span> main() {</div><div class="line">    client := http.Client{</div><div class="line">        <span class="comment">// Skip TLS dial</span></div><div class="line">        Transport: &http2.Transport{</div><div class="line">            AllowHTTP: <span class="constant">true</span>,</div><div class="line">            DialTLS: <span class="keyword">func</span>(network, addr <span class="typename">string</span>, cfg *tls.Config) (net.Conn, error) {</div><div class="line">                <span class="keyword">return</span> net.Dial(network, addr)</div><div class="line">            },</div><div class="line">        },</div><div class="line">    }</div><div class="line"></div><div class="line">    resp, err := client.Get(<span class="string">"http://localhost:8972"</span>)</div><div class="line">    <span class="keyword">if</span> err != <span class="constant">nil</span> {</div><div class="line">        log.Fatal(fmt.Errorf(<span class="string">"error making request: %v"</span>, err))</div><div class="line">    }</div><div class="line">    fmt.Println(resp.StatusCode)</div><div class="line">    fmt.Println(resp.Proto)</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>这个功能的讨论2016年就开始了(<a href="https://github.com/golang/go/issues/14141" target="_blank" rel="external">issue#14141</a>)，最终5月份的这个功能加上了，这样你就可以在没有TLS使用http/2高性能的特性了。</p>
+<p>虽然有一些第三方的实现，但是显然使用官方库是更好的选择。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>了解一下http2和h2c (HTTP/2 over TCP,HTTP/2 without TLS)。</p>
+]]>
+    
+    </summary>
+    
+      <category term="Go" scheme="https://colobu.com/categories/Go/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[区块链中的共识算法]]></title>
@@ -1681,64 +1749,6 @@
       <category term="p2p" scheme="https://colobu.com/tags/p2p/"/>
     
       <category term="区块链" scheme="https://colobu.com/categories/%E5%8C%BA%E5%9D%97%E9%93%BE/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[Java8 和 Java 9中并发工具的改变]]></title>
-    <link href="https://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/"/>
-    <id>https://colobu.com/2018/03/12/Concurrency-Utilities-Enhancements-in-Java-8-Java-9/</id>
-    <published>2018-03-12T09:14:11.000Z</published>
-    <updated>2018-03-12T11:36:03.558Z</updated>
-    <content type="html"><![CDATA[<p>Java 8 和 Java 9中 <code>concurrent</code>包有了一些改变， 本文对这些改变做了汇总。</p>
-<a id="more"></a>
-<h2 id="Java_8_中_Concurrent_package的改变">Java 8 中 Concurrent package的改变</h2>
-<h3 id="java-util-concurrent中新的类和接口">java.util.concurrent中新的类和接口</h3>
-<p>增加了两个新接口和4个新类:</p>
-<ol>
-<li>接口<a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.AsynchronousCompletionTask.html" target="_blank" rel="external">CompletableFuture.AsynchronousCompletionTask</a></li>
-<li><p>接口<a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionStage.html" target="_blank" rel="external">CompletionStage<t></t></a></p>
-</li>
-<li><p>类<a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletableFuture.html" target="_blank" rel="external">CompletableFuture<t></t></a></p>
-</li>
-<li>类<a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentHashMap.KeySetView.html" target="_blank" rel="external">ConcurrentHashMap.KeySetView<k,v></k,v></a></li>
-<li>类<a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CountedCompleter.html" target="_blank" rel="external">CountedCompleter<t></t></a></li>
-<li>类<a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/CompletionException.html" target="_blank" rel="external">CompletionException</a></li>
-</ol>
-<h3 id="java-util-concurrent-ConcurrentHashMap的新方法">java.util.concurrent.ConcurrentHashMap的新方法</h3>
-<p><a href="https://docs.oracle.com/javase/8/docs/technotes/guides/collections/index.html" target="_blank" rel="external">集合框架</a>在Java 8中做了修订，基于<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/language/lambda_api_jdk8.html" target="_blank" rel="external">stream</a>和<a href="https://docs.oracle.com/javase/8/docs/technotes/guides/language/enhancements.html#javase8" target="_blank" rel="external">lambda表达式</a>添加了很多聚合方法。因此<a href="https://docs.oracle.com/javase/8/docs/api/java/util/concurrent/ConcurrentHashMap.html" target="_blank" rel="external"> ConcurrentHashMap </a>也引入了30几个新方法，包括各种<code>foreach</code>方法(<code>forEach</code>, <code>forEachKey</code>, <code>forEachValue</code>, 和 <code>forEachEntry</code>)、搜索方法(<code>search</code>, <code>searchKeys</code>, <code>searchValues</code>, 和 <code>searchEntries</code>)和reduction方法(<code>reduce</code>, <code>reduceToDouble</code>, <code>reduceToLong</code>等)。</p>
-<p>也添加了一些其它方法，比如 <code>mappingCount</code>和<code>newKeySet</code>。并且当前版本的<code>ConcurrentHashMap</code>的更适合做cache，因为增加了当键值不存在的时候的检查方法。</p>
-<h3 id="java-util-concurrent-atomic中的新类">java.util.concurrent.atomic中的新类</h3>
-<p>为了并发计算count、sum， 新引入了<code>DoubleAccumulator</code>, <code>DoubleAdder</code>, <code>LongAccumulator</code>, <code>LongAdder</code>类，比Atomic提供更高的吞吐率。</p>
-<h3 id="java-util-concurrent-ForkJoinPool的新方法">java.util.concurrent.ForkJoinPool的新方法</h3>
-<p>静态的<code>commonPool()</code>新加入，可以为ForkJoinTask提供通用池。</p>
-<p>两个方法 <code>getCommonPoolParallelism()</code> 和 <code>commonPool()</code>提供不同的配置。 </p>
-<h3 id="新类_java-util-concurrent-locks-StampedLock">新类 java.util.concurrent.locks.StampedLock</h3>
-<p>新类<a href="https://docs.oracle.com/javase/8/docs/api/index.html?java/util/concurrent/package-summary.html" target="_blank" rel="external">StampedLock</a>提供三种模式(写，读，乐观读)，用来提高性能。</p>
-<h2 id="Java_9_中_Concurrent_package的改变">Java 9 中 Concurrent package的改变</h2>
-<p>主要是<a href="http://openjdk.java.net/jeps/266" target="_blank" rel="external"> JEP 266: More Concurrency Updates</a>, 包括publish-subscribe, <code>CompletableFuture</code>接口的加强等。</p>
-<ul>
-<li>支持Reactive Streams publish-subscribe框架，四个接口<code>Processor</code>、<code>Publisher</code>、<code>Subscriber</code>、<code>Subscription</code>，容器类<a href="https://docs.oracle.com/javase/9/docs/api/java/util/concurrent/Flow.html" target="_blank" rel="external">java.util.concurrent.Flow</a>、<a href="https://docs.oracle.com/javase/9/docs/api/java/util/concurrent/SubmissionPublisher.html" target="_blank" rel="external">java.util.concurrent.SubmissionPublisher</a></li>
-<li>CompletableFuture类加强，支持delays, timeout, subclassing 以及其它方法</li>
-<li>调优以及修改javadoc</li>
-</ul>
-<h2 id="参考文档">参考文档</h2>
-<ol>
-<li><a href="https://docs.oracle.com/javase/8/docs/technotes/guides/concurrency/changes8.html" target="_blank" rel="external">Concurrency Utilities Enhancements in Java SE 8</a></li>
-<li><a href="https://www.javaworld.com/article/3198904/learn-java/java-9s-other-new-enhancements-part-6-concurrency.html" target="_blank" rel="external">Java 9&#39;s other new enhancements, Part 6: Concurrency</a></li>
-<li><a href="https://blog.takipi.com/the-essential-java-9-feature-you-probably-never-heard-of/" target="_blank" rel="external">The Essential Java 9 Feature You Probably Never Heard Of</a></li>
-<li><a href="https://www.infoworld.com/article/3169289/java/java-9s-other-new-enhancements-part-2.html" target="_blank" rel="external">Java 9&#39;s other new enhancements</a></li>
-<li><a href="http://openjdk.java.net/jeps/266" target="_blank" rel="external">JEP 266: More Concurrency Updates</a></li>
-<li><a href="https://www.voxxed.com/2016/10/java-9-series-concurrency-updates/" target="_blank" rel="external">Java 9 series: Concurrency Updates</a></li>
-</ol>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>Java 8 和 Java 9中 <code>concurrent</code>包有了一些改变， 本文对这些改变做了汇总。</p>
-]]>
-    
-    </summary>
-    
-      <category term="Java" scheme="https://colobu.com/categories/Java/"/>
     
   </entry>
   
