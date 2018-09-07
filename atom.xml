@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="https://colobu.com/"/>
-  <updated>2018-09-07T11:33:30.455Z</updated>
+  <updated>2018-09-07T11:48:35.642Z</updated>
   <id>https://colobu.com/</id>
   
   <author>
@@ -19,7 +19,7 @@
     <link href="https://colobu.com/2018/09/07/image-similarity-algorithms-in-go/"/>
     <id>https://colobu.com/2018/09/07/image-similarity-algorithms-in-go/</id>
     <published>2018-09-07T03:37:48.000Z</published>
-    <updated>2018-09-07T11:32:46.855Z</updated>
+    <updated>2018-09-07T11:48:11.401Z</updated>
     <content type="html"><![CDATA[<p>2008年TinEye上线了图片搜索，开始是注册制，后来逐步放开。2011年， Google也上线了相似图片搜索，通过用户上传的图片，可以搜索相似的图片。<br>参考文档中提供了一些介绍图像搜索的一些文章， 尤其是阮一峰2011年和2013年两篇普及性的文章，可以帮助你了解图像相似搜索的原理。</p>
 <p>图像相似性搜索应用广泛、除了使用搜索引擎搜索类似图片外，像淘宝可以让顾客直接拍照搜索类似的商品信息、应用在商品购物上。也可以应用物体识别比如拍图识花等领域。目前我在调研图片鉴权的方案，通过一张图片和图片库中的图片进行比对，来确定这张图片是否侵权，或者退一步讲，图片库中是否包含和这张图片类似。 这个需求和目前深度学习应用中的图像识别还不一样， 图像识别是需要将图像中的物体识别出来， 猫啊狗啊什么的，而我所要做的就是一个查找相似图片的东西。</p>
 <p>Neal Krawetz博士看到了一些关于TinEye原理的询问， 虽然他并不知道TinEye是怎么实现的，但是根据搜索结果，他判断是基于感知哈希算法(Perceptual hash algorithm)的变种，他于2011年5月写了一篇文章，介绍相关的技术。</p>
@@ -32,7 +32,7 @@
 <p>3、计算颜色的平均值</p>
 <p>4、计算64位中的每一位<br>简单和平均值比较，根据大小设置1和0</p>
 <p>5、计算hash值<br>把这64bit赋值给一个64bit的整数，顺序是无关的，只要保持一致即可。</p>
-<p><img src="Alyson_Hannigan_200512-phash-avg.png" alt="8f373714acfcf4d0"></p>
+<p><img src="Alyson_Hannigan_200512-dhash.png" alt="8f373714acfcf4d0"></p>
 <p>这样，这个图片的指纹就通过一个64位的整数表示出来了。图像放大缩小、旋转、对比度、饱和度的变换不会显著改变指纹。其实最大的好处就是<strong>快</strong>。</p>
 <blockquote>
 <p>天下武功，无坚不摧，唯快不破</p>
