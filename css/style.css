@@ -555,7 +555,7 @@ body {
   float: left;
   position: absolute;
   background-color: #222;
-  min-width: 160px;
+  min-width: 120px;
   -webkit-box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   padding: 12px 0px;
