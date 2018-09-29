@@ -562,6 +562,7 @@ body {
   z-index: 1000;
   margin-top: 25px;
   margin-left: 10px;
+  white-space: nowrap;
 }
 .dropdown-content hr {
   border: 0;
