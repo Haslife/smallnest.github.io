@@ -4,7 +4,7 @@
   <subtitle><![CDATA[大道至简 Simplicity is the ultimate form of sophistication]]></subtitle>
   <link href="/atom.xml" rel="self"/>
   <link href="https://colobu.com/"/>
-  <updated>2018-10-23T04:08:37.711Z</updated>
+  <updated>2018-10-29T03:13:24.620Z</updated>
   <id>https://colobu.com/</id>
   
   <author>
@@ -13,6 +13,117 @@
   </author>
   
   <generator uri="http://zespia.tw/hexo/">Hexo</generator>
+  
+  <entry>
+    <title><![CDATA[Java: 未来已来]]></title>
+    <link href="https://colobu.com/2018/10/24/the-future-of-java-is-today/"/>
+    <id>https://colobu.com/2018/10/24/the-future-of-java-is-today/</id>
+    <published>2018-10-24T11:44:33.000Z</published>
+    <updated>2018-10-29T03:12:38.372Z</updated>
+    <content type="html"><![CDATA[<p>在10月22的 Oracle Codeone大会上，Java平台的首席架构师 Mark Reinhold 做了<a href="https://www.oracle.com/code-one/keynotes.html#Monday" target="_blank" rel="external">The Future of Java is Today</a>的演讲， 回顾了最近Java的几个版本的新的功能，Java的每年两次的发布周期， 澄清了关于发布流程和Java版本的几个误区，最后花了很大的篇幅介绍了未来Java几个令人非常期待的几个孵化中项目，可以为Java带来更好的生产力、性能和可扩展性。我整理了这四个项目相关的知识，你可以提前了解到Java未来的这些酷炫的特性。</p>
+<p><img src="/2018/10/24/the-future-of-java-is-today/java_release.png" alt="Java各版本的发布时间点和LTS版本"></p>
+<p>Mark Reinhold 我不多介绍了， 之前要了解Java的未来动向看Java之父James Gosling， 他离开Oracle之后想了解Java的动向就看 Mark Reinhold。</p>
+<a id="more"></a>
+<p><img src="java.jpg" alt=""></p>
+<h2 id="Project_Amber">Project Amber</h2>
+<blockquote>
+<p>提供面向生产力的Java特性， 比如字符串字面值、switch表达式、模式匹配、record等</p>
+</blockquote>
+<p>这个项目包含很多Java语言特性的新功能。</p>
+<p>包括：</p>
+<p><strong>正在实现的</strong>:</p>
+<ul>
+<li><a href="https://openjdk.java.net/jeps/302" target="_blank" rel="external">JEP 302</a> Lambda Leftovers: 对lambda功能的补强， 比如下划线变量等<code>BiFunction&lt;Integer, String, String&gt; biss = (i, _) -&gt; String.valueOf(i);</code>, lambda参数的Shadowing,消除一些歧义等修补工作</li>
+<li><a href="https://openjdk.java.net/jeps/305" target="_blank" rel="external">JEP 305</a> Pattern Matching: 这个功能非常好,Scala和kotlin中的模式匹配非常强大，这个jep提供了类似的功能，配合switch和record,可以大大简化条件分支的处理，如:</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> eval(Node n) {</div><div class="line">    <span class="keyword">switch</span>(n) {</div><div class="line">        <span class="keyword">case</span> IntNode(<span class="keyword">int</span> i): <span class="keyword">return</span> i;</div><div class="line">        <span class="keyword">case</span> NegNode(Node n): <span class="keyword">return</span> -eval(n);</div><div class="line">        <span class="keyword">case</span> AddNode(Node left, Node right): <span class="keyword">return</span> eval(left) + eval(right);</div><div class="line">        <span class="keyword">case</span> MulNode(Node left, Node right): <span class="keyword">return</span> eval(left) * eval(right);</div><div class="line">        <span class="keyword">default</span>: <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(n);</div><div class="line">    };</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p>数据类,一行定义，省去了字段、字段访问方法和hash、equals、toString等方法，定义ValueObject简化到家了：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">record Point(<span class="keyword">int</span> x, <span class="keyword">int</span> y);</div></pre></td></tr></table></figure>
+
+<ul>
+<li><a href="https://openjdk.java.net/jeps/325" target="_blank" rel="external">JEP 325</a> Switch Expressions (preview, JDK 12): 当前的switch是什么， 语句。这个jep扩展switch,并且可以作为表达式使用:</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">int</span> numLetters = <span class="keyword">switch</span> (day) {</div><div class="line">    <span class="keyword">case</span> MONDAY, FRIDAY, SUNDAY -&gt; <span class="number">6</span>;</div><div class="line">    <span class="keyword">case</span> TUESDAY                -&gt; <span class="number">7</span>;</div><div class="line">    <span class="keyword">case</span> THURSDAY, SATURDAY     -&gt; <span class="number">8</span>;</div><div class="line">    <span class="keyword">case</span> WEDNESDAY              -&gt; <span class="number">9</span>;</div><div class="line">};</div></pre></td></tr></table></figure>
+
+<ul>
+<li><a href="https://openjdk.java.net/jeps/326" target="_blank" rel="external">JEP 326</a> Raw String Literals (preview, JDK 12): 这个很多语言中都实现了，可以更好的书写字符串字面值， 尤其在正则表达式中处理很多转义符的时候，和Go类似：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">String s = `</div><div class="line"><span class="keyword">this</span> is my</div><div class="line">    embedded string</div><div class="line">`;</div></pre></td></tr></table></figure>
+
+<ul>
+<li><a href="https://openjdk.java.net/jeps/8209434" target="_blank" rel="external">JEP draft 8209434</a> Concise Method Bodies: 正常的方法定义以大括号包裹，这个特性提供了类似Lambda表达式简化方式的形式，直接单行定义方法体, 类似C#和kotlin的特性：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">class MyList&lt;T&gt; implements List&lt;T&gt; {</div><div class="line">    <span class="keyword">private</span> List&lt;T&gt; aList;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">int</span> <span class="title">size</span>() = aList::size;</div><div class="line">    <span class="keyword">public</span> T <span class="title">get</span>(<span class="keyword">int</span> index) = aList::get;</div><div class="line">    ...</div><div class="line">}</div></pre></td></tr></table></figure>
+
+<p><strong>已发布的</strong>:</p>
+<ul>
+<li>JEP 286 Local-Variable Type Inference (var) (JDK 10): 本地变量的类型推断， 也就是使用<code>var</code>定义变量,有些同学已经用起来了，非常的方便，有点类似动态类型的语言，感觉虽然还没有达到Scala那么灵活，已经很不错了</li>
+<li>JEP 323 Local-Variable Syntax for Lambda Parameters (JDK 11): 对本地变量的类型推断的加强，用在Lambda表达式中。</li>
+</ul>
+<p><strong>暂时搁置的</strong>:</p>
+<ul>
+<li>JEP 301 Enhanced Enums.</li>
+</ul>
+<p>总之，每一个特性都可以大大简化我们的开发，让Java更像一个&quot;现代的&quot;编程语言。</p>
+<h2 id="Project_Loom">Project Loom</h2>
+<blockquote>
+<p>提供一个轻量级的用户态的纤程，叫做<code>fiber</code>,更加简化并发编程，而且更有效</p>
+</blockquote>
+<p>这个特性多年前我介绍过: <a href="https://colobu.com/2016/08/01/talk-about-quasar-again/" target="_blank" rel="external">https://colobu.com/2016/08/01/talk-about-quasar-again/</a>,当时它还像一个玩具，开发的时候很麻烦，而且有一些坑。作者后来负责这个jep，可以很好的从java实现的角度去实现fiber,所以很是期待。</p>
+<p><img src="fiber1.png" alt=""></p>
+<p>Mark Reinhold 首先使用jshell演示了fiber的使用，一两行程序就可以做到，我觉得方便性可以和goroutine相媲美了。他接着使用一个restful的例子比较了Thread和Fiber的性能， restful服务收到请求后暂停100毫秒，模拟一个慢的io操作，结果显示Thread很很多几百毫秒的尖峰，而fiber在预热之后一直稳定在100毫秒。 这绝对是Java程序员值的关注一个新特性。</p>
+<p><img src="fiber2.png" alt=""></p>
+<p>例子使用jetty做服务器，线程池执行命令的时候让fiber去调度，这种方式对现有的代码改动很小。</p>
+<p><img src="fiber3.png" alt=""></p>
+<p>我比较关注的是如果它的内部调度算法怎么实现的，另外，一个包含复杂业务完成时间较长的fiber是否能被调度器自动调度，以便使用有限的线程调度其它的fiber， 类似goroutine在系统调用的时候自动插入检查点。</p>
+<h2 id="Project_Panama">Project Panama</h2>
+<blockquote>
+<p>提升JVM和外部（非java）代码和数据联系</p>
+</blockquote>
+<p>当然，这个项目不仅仅是简化JNI的开发，而且提供了很多的特性：</p>
+<ul>
+<li>native function calling from JVM (C, C++), specifically per JEP 191</li>
+<li>native data access from JVM or inside JVM heap</li>
+<li>new data layouts in JVM heap</li>
+<li>native metadata definition for JVM</li>
+<li>header file API extraction tools (see below)</li>
+<li>native library management APIs</li>
+<li>native-oriented interpreter and runtime “hooks”</li>
+<li>class and method resolution “hooks”</li>
+<li>native-oriented JIT optimizations</li>
+<li>tooling or wrapper interposition for safety</li>
+<li>exploratory work with difficult-to-integrate native libraries</li>
+</ul>
+<p><img src="panama1.png" alt=""><br>Mark Reinhold在演讲中举了两个例子，首先是为 POSIX 操作系统 API 的头文件<code>unistd.h</code>中的函数生成Java的可访问代码。</p>
+<p><img src="panama2.png" alt=""><br><code>jextract</code>工具会生成一堆的函数和类型，关键这些是从c的头文件中自动生成的，你不必费劲心思去自己设计类型和方法了。这一点比Go语言中的CGO要方便多了，快捷度可以和C#互操作性相媲美。<br>所以以后你要是想从Java中访问C的链接库，可以使用<code>jextract</code>一步生成，</p>
+<p><img src="panama3.png" alt=""><br>调用方法也很方便。</p>
+<p>另一个例子是调用C标准库<code>time.h</code>中的<code>clock_gettime</code>函数，它的参数需要struct类型，使用上面相同的手段可以生成访问类：</p>
+<p><img src="panama4.png" alt=""></p>
+<p>当然这两个例子只演示了这个项目的一个功能，更多的功能我们可以持续关注。</p>
+<h2 id="Project_Valhalla">Project Valhalla</h2>
+<blockquote>
+<p>包含两个feature: 值类型和基本类型的泛型。</p>
+</blockquote>
+<ul>
+<li>值类型：提供不可变类型和非引用类型的支持。不可变类型在Scala中很常用，java中也会引进这中类型。使用这种类型有很多好处，一个就是可以显著地提高性能，因为数据不可变，你也不必担心同步更新的问题。</li>
+<li>基本类型的泛型: 为primitive type提供泛型的支持，不必再进行装箱开箱操作。</li>
+</ul>
+<p><img src="valhalla1.png" alt=""><br>Mark Reinhold用一个复数矩阵相乘的例子来测试，测试工具使用JMH。</p>
+<p>首先是正常的<code>public class Complex {...}</code>类，然后改成值类型<code>public value class Complex{...}</code>再次测试，结果显示，<br>正常测试花费3.6秒内存分配3.7G；值类型则只需要0.3秒花费3.8M左右，效果惊人！</p>
+<p>目前这些特性还在开发之中，Mark Reinhold用java12 + 这些项目已经能跑一些例子了，我们可以期待不远的将来能在Java中使用到这些美妙的特性。</p>
+]]></content>
+    <summary type="html">
+    <![CDATA[<p>在10月22的 Oracle Codeone大会上，Java平台的首席架构师 Mark Reinhold 做了<a href="https://www.oracle.com/code-one/keynotes.html#Monday" target="_blank" rel="external">The Future of Java is Today</a>的演讲， 回顾了最近Java的几个版本的新的功能，Java的每年两次的发布周期， 澄清了关于发布流程和Java版本的几个误区，最后花了很大的篇幅介绍了未来Java几个令人非常期待的几个孵化中项目，可以为Java带来更好的生产力、性能和可扩展性。我整理了这四个项目相关的知识，你可以提前了解到Java未来的这些酷炫的特性。</p>
+<p><img src="/2018/10/24/the-future-of-java-is-today/java_release.png" alt="Java各版本的发布时间点和LTS版本"></p>
+<p>Mark Reinhold 我不多介绍了， 之前要了解Java的未来动向看Java之父James Gosling， 他离开Oracle之后想了解Java的动向就看 Mark Reinhold。</p>
+]]>
+    
+    </summary>
+    
+      <category term="Java" scheme="https://colobu.com/categories/Java/"/>
+    
+  </entry>
   
   <entry>
     <title><![CDATA[Docker日志太多导致磁盘占满]]></title>
@@ -1416,45 +1527,6 @@
     </summary>
     
       <category term="IPFS" scheme="https://colobu.com/tags/IPFS/"/>
-    
-  </entry>
-  
-  <entry>
-    <title><![CDATA[停止、删除所有的docker容器和镜像]]></title>
-    <link href="https://colobu.com/2018/05/15/Stop-and-remove-all-docker-containers-and-images/"/>
-    <id>https://colobu.com/2018/05/15/Stop-and-remove-all-docker-containers-and-images/</id>
-    <published>2018-05-15T10:10:59.000Z</published>
-    <updated>2018-05-31T12:25:32.094Z</updated>
-    <content type="html"><![CDATA[<p>这些命令总是记不住，或者说不用心去记，所以记录在本文中，以便将来查询。</p>
-<a id="more"></a>
-<h2 id="列出所有的容器_ID">列出所有的容器 ID</h2>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker <span class="keyword">ps</span> -aq</div></pre></td></tr></table></figure>
-
-<h2 id="停止所有的容器">停止所有的容器</h2>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker <span class="keyword">stop</span> $(docker <span class="keyword">ps</span> -aq)</div></pre></td></tr></table></figure>
-
-<h2 id="删除所有的容器">删除所有的容器</h2>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker rm $(docker <span class="keyword">ps</span> -aq)</div></pre></td></tr></table></figure>
-
-<h2 id="删除所有的镜像">删除所有的镜像</h2>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">docker rmi <span class="variable">$(</span>docker images -q)</div></pre></td></tr></table></figure>
-
-<h2 id="复制文件">复制文件</h2>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">docker cp mycontainer:/opt/<span class="built_in">file</span>.txt /opt/<span class="built_in">local</span>/</div><div class="line">docker cp /opt/<span class="built_in">local</span>/<span class="built_in">file</span>.txt mycontainer:/opt/</div></pre></td></tr></table></figure>
-
-<p><strong>更新</strong>: @snakeliwei 的提醒， 现在的docker有了专门清理资源(container、image、网络)的命令。 docker 1.13 中增加了 <code>docker system prune</code>的命令，针对container、image可以使用<code>docker container prune</code>、<code>docker image prune</code>命令。</p>
-<ul>
-<li><code>docker image prune --force --all</code>或者docker image prune -f -a` : 删除所有不使用的镜像</li>
-<li><code>docker container prune -f</code>: 删除所有停止的容器</li>
-</ul>
-]]></content>
-    <summary type="html">
-    <![CDATA[<p>这些命令总是记不住，或者说不用心去记，所以记录在本文中，以便将来查询。</p>
-]]>
-    
-    </summary>
-    
-      <category term="Docker" scheme="https://colobu.com/categories/Docker/"/>
     
   </entry>
   
